@@ -10,4 +10,9 @@
     <PackageReference Include="DartSassBuilder" Version="1.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\css\open-iconic\font\css\" />
+    <Folder Include="wwwroot\css\open-iconic\font\fonts\" />
+  </ItemGroup>
+
 </Project>
