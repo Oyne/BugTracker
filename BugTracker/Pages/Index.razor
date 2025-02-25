@@ -2,8 +2,16 @@
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<TextInputRow></TextInputRow>
+<TextInputRow Title="Sonya"></TextInputRow>
 
-Welcome to your new app.
+<DropdownSelector Items="@Items" />
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+    private List<ListItem> Items { get; set; } = new()
+    {
+        new ListItem { Title = "Bug", Description = "Something isn't working", Color = "red" },
+        new ListItem { Title = "Documentation", Description = "Improvements or additions to documentation", Color = "blue" },
+        new ListItem { Title = "Enhancement", Description = "New feature or request", Color = "green" }
+    };
+}

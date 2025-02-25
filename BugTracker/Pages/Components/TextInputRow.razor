@@ -1,0 +1,12 @@
+﻿<div>
+    <p>@Title</p>
+    <div>
+        <input type="text" placeholder=@Placeholder />
+    </div>
+</div>
+
+@code 
+{
+    [Parameter] public string Title { get; set; } = "Title";
+    [Parameter] public string Placeholder { get; set; } = "Placeholder";
+}

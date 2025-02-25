@@ -1,0 +1,11 @@
+﻿<div @onclick="() => OnSelect.InvokeAsync(Item)" class="list-item @(Item.IsSelected ? "selected" : "")">
+    <input type="checkbox" checked="@Item.IsSelected" />
+    <span class="color-dot" style="background-color: @Item.Color"></span>
+    <strong>@Item.Title</strong>
+    <p>@Item.Description</p>
+</div>
+
+@code {
+    [Parameter] public ListItem Item { get; set; } = new();
+    [Parameter] public EventCallback<ListItem> OnSelect { get; set; }
+}

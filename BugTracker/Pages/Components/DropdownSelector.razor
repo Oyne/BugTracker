@@ -1,0 +1,33 @@
+﻿<div @onclick="ToggleDropdown" class="dropdown">
+    <div>
+        Dropdown
+    </div>
+    <div class="selected-items">
+        @foreach (var item in SelectedItems)
+        {
+            <Badge Title="@item.Title" Color="@item.Color" />
+        }
+    </div>
+    <div class="list-items" style="@(IsDropdownOpen ? "display: block;" : "display: none;")">
+        @foreach (var item in Items)
+        {
+            <ListItemComponent Item="item" OnSelect="ToggleSelection" />
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<ListItem> Items { get; set; } = new();
+    private List<ListItem> SelectedItems => Items.Where(i => i.IsSelected).ToList();
+    private bool IsDropdownOpen { get; set; } = false;
+
+    private void ToggleDropdown()
+    {
+        IsDropdownOpen = !IsDropdownOpen;
+    }
+
+    private void ToggleSelection(ListItem item)
+    {
+        item.IsSelected = !item.IsSelected;
+    }
+}
