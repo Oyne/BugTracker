@@ -1,4 +1,6 @@
 
+using Microsoft.Data.SqlClient;
+
 namespace BugTracker.API
 {
     public class Program
@@ -6,6 +8,11 @@ namespace BugTracker.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Verify connection to database
+            using var connection = new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"));
+            connection.Open();
+            Console.WriteLine("Database connected successfully!");
 
             // Add services to the container.
 
