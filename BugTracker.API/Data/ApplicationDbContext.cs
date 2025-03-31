@@ -13,7 +13,7 @@ namespace BugTracker.API.Data
         public DbSet<Bug> Bugs { get; set; }
 
         public DbSet<Role> Roles { get; set; }
-        public DbSet<AppUser> Users { get; set; }
+        public DbSet<AppUser> AppUsers { get; set; }
 
         public DbSet<AuthorBug> AuthorsBugs { get; set; }
         public DbSet<AssigneeBug> AssigneesBugs { get; set; }

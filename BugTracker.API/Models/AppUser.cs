@@ -1,14 +1,33 @@
-﻿namespace BugTracker.API.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BugTracker.API.Models
 {
+    [Table("app_user")]
     public class AppUser
     {
+        [Key]
+        [Column("id")]
         public int Id { get; set; }
-        public string Email { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
 
-        public int RoleId { get; set; }
-        public Role Role { get; set; } = null!;
+        [Column("email")]
+        public string Email { get; set; } = null!;
+
+        [Column("username")]
+        public string Username { get; set; } = null!;
+
+        [Column("password")]
+        public string Password { get; set; } = null!;
+
+        [Column("first_name")]
+        public string? FirstName { get; set; }
+
+        [Column("last_name")]
+        public string? LastName { get; set; }
+
+        [Column("role_id")]
+        public int? RoleId { get; set; }
+        [ForeignKey("RoleId")]
+        public Role? Role { get; set; }
     }
 }
