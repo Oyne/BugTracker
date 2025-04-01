@@ -11,13 +11,16 @@ namespace BugTracker.API.Models
         public int Id { get; set; }
 
         [Column("email")]
-        public string Email { get; set; } = null!;
+        [Required]
+        public required string Email { get; set; }
 
         [Column("username")]
-        public string Username { get; set; } = null!;
+        [Required]
+        public required string Username { get; set; }
 
         [Column("password")]
-        public string Password { get; set; } = null!;
+        [Required]
+        public required string Password { get; set; }
 
         [Column("first_name")]
         public string? FirstName { get; set; }

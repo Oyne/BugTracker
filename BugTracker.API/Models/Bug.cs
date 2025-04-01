@@ -11,10 +11,12 @@ namespace BugTracker.API.Models
         public int Id { get; set; }
 
         [Column("name")]
-        public string Name { get; set; } = null!;
+        [Required]
+        public required string Name { get; set; }
 
         [Column("description")]
-        public string Description { get; set; } = null!;
+        [Required]
+        public required string Description { get; set; }
 
         [Column("priority_id")]
         public int? PriorityId { get; set; }

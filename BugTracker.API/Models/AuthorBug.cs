@@ -14,12 +14,14 @@ namespace BugTracker.API.Models
         public int AuthorId { get; set; }
 
         [ForeignKey("author_id")]
-        public AppUser Author { get; set; } = null!;
+        [Required]
+        public required AppUser Author { get; set; }
 
         [Column("bug_id")]
         public int BugId { get; set; }
 
         [ForeignKey("BugId")]
-        public Bug Bug { get; set; } = null!;
+        [Required]
+        public required Bug Bug { get; set; }
     }
 }

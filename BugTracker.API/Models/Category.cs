@@ -11,7 +11,8 @@ namespace BugTracker.API.Models
         public int Id { get; set; }
 
         [Column("name")]
-        public string Name { get; set; } = null!;
+        [Required]
+        public required string Name { get; set; }
 
         public List<Bug> Bugs { get; set; } = new();
     }
