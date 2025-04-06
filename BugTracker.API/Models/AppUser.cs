@@ -3,34 +3,37 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BugTracker.API.Models
 {
-    [Table("app_user")]
+    [Table("AppUser")]
     public class AppUser
     {
         [Key]
-        [Column("id")]
+        [Column("Id")]
         public int Id { get; set; }
 
-        [Column("email")]
+        [Column("Email")]
         [Required]
         public required string Email { get; set; }
 
-        [Column("username")]
+        [Column("Username")]
         [Required]
         public required string Username { get; set; }
 
-        [Column("password")]
+        [Column("Password")]
         [Required]
         public required string Password { get; set; }
 
-        [Column("first_name")]
+        [Column("FirstName")]
         public string? FirstName { get; set; }
 
-        [Column("last_name")]
+        [Column("LastName")]
         public string? LastName { get; set; }
 
-        [Column("role_id")]
+        [Column("RoleId")]
         public int? RoleId { get; set; }
+
         [ForeignKey("RoleId")]
         public Role? Role { get; set; }
+
+        public List<AssigneeBug> AssignedBugs { get; set; } = new();
     }
 }

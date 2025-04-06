@@ -3,46 +3,48 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BugTracker.API.Models
 {
-    [Table("bug")]
+    [Table("Bug")]
     public class Bug
     {
         [Key]
-        [Column("id")]
+        [Column("Id")]
         public int Id { get; set; }
 
-        [Column("name")]
+        [Column("Title")]
         [Required]
-        public required string Name { get; set; }
+        public required string Title { get; set; }
 
-        [Column("description")]
+        [Column("Description")]
         [Required]
         public required string Description { get; set; }
 
-        [Column("priority_id")]
+        [Column("PriorityId")]
         public int? PriorityId { get; set; }
 
         [ForeignKey("PriorityId")]
         public Priority? Priority { get; set; }
 
-        [Column("status_id")]
+        [Column("StatusId")]
         public int? StatusId { get; set; }
 
         [ForeignKey("StatusId")]
         public Status? Status { get; set; }
 
-        [Column("category_id")]
+        [Column("CategoryId")]
         public int? CategoryId { get; set; }
 
         [ForeignKey("CategoryId")]
         public Category? Category { get; set; }
 
-        [Column("creation_date_time")]
+        [Column("CreationDateTime")]
         public DateTime CreationDate { get; set; }
 
-        [Column("edit__date_time")]
-        public DateTime EditDateTime { get; set; }
+        [Column("LastEditDateTime")]
+        public DateTime LastEditDateTime { get; set; }
 
-        [Column("logged_time")]
+        [Column("LoggedTime")]
         public TimeSpan LoggedTime { get; set; }
+
+        public List<AssigneeBug> AssignedBugs { get; set; } = new();
     }
 }

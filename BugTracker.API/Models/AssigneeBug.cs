@@ -3,21 +3,21 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BugTracker.API.Models
 {
-    [Table("assignee_bug")]
+    [Table("AssigneeBug")]
     public class AssigneeBug
     {
         [Key]
-        [Column("id")]
+        [Column("Id")]
         public int Id { get; set; }
 
-        [Column("assignee_id")]
+        [Column("AssigneeId")]
         public int AssigneeId { get; set; }
 
-        [ForeignKey("author_id")]
+        [ForeignKey("AssigneeId")]
         [Required]
         public required AppUser Assignee { get; set; }
 
-        [Column("bug_id")]
+        [Column("BugId")]
         public int BugId { get; set; }
 
         [ForeignKey("BugId")]

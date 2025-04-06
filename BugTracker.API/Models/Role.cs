@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BugTracker.API.Models
 {
-    [Table("role")]
+    [Table("Role")]
     public class Role
     {
         [Key]
-        [Column("id")]
+        [Column("Id")]
         public int Id { get; set; }
 
-        [Column("name")]
+        [Column("Name")]
         [Required]
         public required string Name { get; set; }
 
