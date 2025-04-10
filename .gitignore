@@ -402,3 +402,4 @@ FodyWeavers.xsd
 # Remove compiled css except wwwroot
 *.css
 !**/wwwroot/**/*.css
+/SQL Scripts/desktop.ini
