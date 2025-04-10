@@ -1,108 +1,94 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using BugTracker.API.Data;
+using BugTracker.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using BugTracker.API.Data;
-using BugTracker.API.Models;
-
 namespace BugTracker.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class AppUsersController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private ApplicationDbContext _context;
 
         public AppUsersController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/AppUsers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<AppUser>>> GetAll()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.AppUsers.ToListAsync();
         }
 
-        // GET: api/AppUsers/5
+        // Get api/appusers/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>> GetAppUser(int id)
+        public async Task<ActionResult<AppUser>> GetById(int id)
         {
-            var appUser = await _context.Users.FindAsync(id);
-
-            if (appUser == null)
+            var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null)
             {
-                return NotFound();
+                return NotFound(new
+                {
+                    error = "User Not found",
+                    details = $"User with Id: '{id}' does not exist"
+                });
             }
-
-            return appUser;
+            return new ObjectResult(user);
         }
 
-        // PUT: api/AppUsers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAppUser(int id, AppUser appUser)
+        // Get api/appusers/by-email/{email}
+        [HttpGet("by-email/{email}")]
+        public async Task<ActionResult<AppUser>> GetByEmail(string email)
         {
-            if (id != appUser.Id)
+            var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
             {
-                return BadRequest();
+                return NotFound(new
+                {
+                    error = "User Not found",
+                    details = $"User with email: '{email}' does not exist"
+                });
+            }
+            return new ObjectResult(user);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<AppUser>> Post(AppUser user)
+        {
+            if (user == null)
+            {
+                return BadRequest("User cannot be null");
             }
 
-            _context.Entry(appUser).State = EntityState.Modified;
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AppUserExists(id))
+                var existingUser = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == user.Email);
+                if (existingUser == null)
                 {
-                    return NotFound();
+                    _context.AppUsers.Add(user);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
                 }
-                else
+                return Conflict(new
                 {
-                    throw;
-                }
+                    error = "Conflict",
+                    details = $"User with email: '{user.Email}' already exists"
+                });
             }
-
-            return NoContent();
-        }
-
-        // POST: api/AppUsers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<AppUser>> PostAppUser(AppUser appUser)
-        {
-            _context.Users.Add(appUser);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetAppUser", new { id = appUser.Id }, appUser);
-        }
-
-        // DELETE: api/AppUsers/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAppUser(int id)
-        {
-            var appUser = await _context.Users.FindAsync(id);
-            if (appUser == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                await transaction.RollbackAsync();
+                return StatusCode(500, new
+                {
+                    error = "An unexpected error occurred",
+                    details = ex.Message
+                });
             }
-
-            _context.Users.Remove(appUser);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool AppUserExists(int id)
-        {
-            return _context.Users.Any(e => e.Id == id);
         }
     }
 }
