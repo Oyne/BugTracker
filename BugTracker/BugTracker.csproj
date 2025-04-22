@@ -25,4 +25,8 @@
     <Folder Include="wwwroot\css\open-iconic\font\fonts\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BugTracker.API\BugTracker.API.csproj" />
+  </ItemGroup>
+
 </Project>
