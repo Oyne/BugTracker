@@ -1,0 +1,26 @@
+﻿@inject HttpClient httpClient
+@page "/bug/{Id:int}"
+
+@if (Bug == null)
+{
+    <div>Bug is not found</div>
+}
+else
+{
+    <div>@Bug.Title</div>
+    <div>@Bug.Description</div>
+}
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private Bug? Bug;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Bug = await httpClient.GetFromJsonAsync<Bug>("api/bugs/" + Id);
+    }
+}

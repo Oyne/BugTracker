@@ -1,0 +1,34 @@
+﻿@inject HttpClient httpClient
+
+@page "/create-bug"
+
+<TextInputRow Title="Name"
+              Placeholder="Enter bug name"
+              @bind-value="BugName"></TextInputRow>
+
+<TextInputArea Title="Description"
+               Placeholder="Enter bug description"
+               @bind-value="BugDescription"></TextInputArea>
+
+<p>@BugName</p>
+<pre>@BugDescription</pre>
+<button @onclick="CreateBug">Create bug</button>
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    private string BugName { get; set; } = string.Empty;
+    private string BugDescription { get; set; } = string.Empty;
+
+    private async Task CreateBug()
+    {
+        Bug bug = new Bug
+            {
+                Title = BugName,
+                Description = BugDescription,
+                CreationDate = DateTime.Now
+            };
+
+        var response = await httpClient.PostAsJsonAsync("api/bugs", bug);
+        NavigationManager.NavigateTo("/");
+    }
+}
