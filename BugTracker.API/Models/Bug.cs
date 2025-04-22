@@ -40,10 +40,10 @@ namespace BugTracker.API.Models
         public DateTime CreationDate { get; set; }
 
         [Column("LastEditDateTime")]
-        public DateTime LastEditDateTime { get; set; }
+        public DateTime? LastEditDateTime { get; set; }
 
         [Column("LoggedTime")]
-        public TimeSpan LoggedTime { get; set; }
+        public TimeSpan? LoggedTime { get; set; }
 
         public List<AssigneeBug> AssignedBugs { get; set; } = new();
     }
