@@ -60,8 +60,8 @@ CREATE TABLE Bug
     StatusId INT NULL,
     CategoryId INT NULL,
     CreationDateTime DATETIME DEFAULT GETDATE(),
-    LastEditDateTime DATETIME,
-    LoggedTime TIME,
+    LastEditDateTime DATETIME NULL,
+    LoggedTime TIME NULL,
     FOREIGN KEY (PriorityId) REFERENCES Priority (Id) ON DELETE SET NULL,
     FOREIGN KEY (StatusId) REFERENCES Status (Id) ON DELETE SET NULL,
     FOREIGN KEY (CategoryId) REFERENCES Category (Id) ON DELETE SET NULL
