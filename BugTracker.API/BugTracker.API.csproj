@@ -30,4 +30,8 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BugTracker.Shared\BugTracker.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

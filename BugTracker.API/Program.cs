@@ -18,6 +18,16 @@ namespace BugTracker.API
             connection.Open();
             Console.WriteLine("Database connected successfully!");
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowBlazorWasm", policy =>
+                {
+                    policy.WithOrigins("https://localhost:7268") // <- Your Blazor WebAssembly origin
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
             // Add services to the container.
             builder.Services.AddControllers();
 
@@ -32,8 +42,11 @@ namespace BugTracker.API
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-                app.UseHttpsRedirection();
             }
+
+            app.UseHttpsRedirection();
+
+            app.UseCors("AllowBlazorWasm");
 
             app.UseAuthorization();
 

@@ -1,4 +1,4 @@
-﻿using BugTracker.API.Models;
+﻿using BugTracker.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.API.Data

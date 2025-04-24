@@ -1,5 +1,5 @@
 ﻿using BugTracker.API.Data;
-using BugTracker.API.Models;
+using BugTracker.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 namespace BugTracker.API.Controllers
