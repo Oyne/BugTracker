@@ -75,5 +75,92 @@ namespace BugTracker.API.Controllers
                 });
             }
         }
+
+        // Put api/bugs/
+        [HttpPut()]
+        public async Task<ActionResult<Bug>> Put(Bug bug)
+        {
+            if (bug == null)
+            {
+                return BadRequest("Bug cannot be null");
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var existingBug = await _context.Bugs.FirstOrDefaultAsync(b => b.Id == bug.Id);
+                if (existingBug == null)
+                {
+                    return NotFound(new
+                    {
+                        error = "Bug Not found",
+                        details = $"Bug with Id: '{bug.Id}' does not exist"
+                    });
+                }
+
+                existingBug.Title = bug.Title;
+                existingBug.Description = bug.Description;
+                existingBug.PriorityId = bug.PriorityId;
+                existingBug.StatusId = bug.StatusId;
+                existingBug.CategoryId = bug.CategoryId;
+                existingBug.LastEditDateTime = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return Ok(new
+                {
+                    message = "Updated",
+                    details = $"Bug with id: '{existingBug.Id}' was updated"
+                });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new
+                {
+                    error = "An unexpected error occurred",
+                    details = ex.Message
+                });
+            }
+        }
+
+        // Delete api/bugs/{id}
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Bug>> Delete(int id)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var existingBug = await _context.Bugs.FirstOrDefaultAsync(b => b.Id == id);
+                if (existingBug == null)
+                {
+                    return NotFound(new
+                    {
+                        error = "Bug Not found",
+                        details = $"Bug with Id: '{id}' does not exist"
+                    });
+                }
+
+                _context.Bugs.Remove(existingBug);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return Ok(new
+                {
+                    message = "Deleted",
+                    details = $"Bug with id: '{existingBug.Id}' was deleted"
+                });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new
+                {
+                    error = "An unexpected error occurred",
+                    details = ex.Message
+                });
+            }
+        }
     }
 }
