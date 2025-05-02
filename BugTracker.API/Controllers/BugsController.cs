@@ -19,14 +19,22 @@ namespace BugTracker.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Bug>>> GetAll()
         {
-            return await _context.Bugs.ToListAsync();
+            return await _context.Bugs
+                .Include(b => b.Priority)
+                .Include(b => b.Status)
+                .Include(b => b.Category)
+                .ToListAsync();
         }
 
         // Get api/bugs/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Bug>> GetById(int id)
         {
-            var bug = await _context.Bugs.FirstOrDefaultAsync(b => b.Id == id);
+            var bug = await _context.Bugs
+                .Include(b => b.Priority)
+                .Include(b => b.Status)
+                .Include(b => b.Category).FirstOrDefaultAsync(b => b.Id == id);
+
             if (bug == null)
             {
                 return NotFound(new
@@ -53,6 +61,9 @@ namespace BugTracker.API.Controllers
                 var existingBug = await _context.Bugs.FirstOrDefaultAsync(b => b.Title == bug.Title);
                 if (existingBug == null)
                 {
+                    var creationTime = DateTime.UtcNow;
+                    bug.CreationDate = creationTime;
+                    bug.LastEditDateTime = creationTime;
                     _context.Bugs.Add(bug);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
