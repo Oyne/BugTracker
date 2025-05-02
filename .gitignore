@@ -403,3 +403,4 @@ FodyWeavers.xsd
 *.css
 !**/wwwroot/**/*.css
 /SQL Scripts/desktop.ini
+/TemplateEngineHost/vs
