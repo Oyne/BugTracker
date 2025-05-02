@@ -10,10 +10,14 @@
 
 @code
 {
-    [Parameter] public string Title { get; set; } = "Title";
-    [Parameter] public string Placeholder { get; set; } = "Enter";
-    [Parameter] public string? Value { get; set; }
-    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] 
+    public string Title { get; set; } = "Title";
+    [Parameter] 
+    public string Placeholder { get; set; } = "Enter";
+    [Parameter] 
+    public string? Value { get; set; }
+    [Parameter] 
+    public EventCallback<string> ValueChanged { get; set; }
 
     private async Task OnValueChanged(ChangeEventArgs e)
     {

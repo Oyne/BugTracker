@@ -1,5 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
 <main>
+    <button @onclick="NavigateBack">Back</button>
     @Body
 </main>
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}
