@@ -1,0 +1,126 @@
+﻿@inject BugClient _bugClient;
+@inject PrioritiesClient _prioritiesClient;
+@inject StatusesClient _statusesClient;
+@inject CategoriesClient _categoriesClient;
+
+@page "/bug/{Id:int}"
+
+@if (IsLoadimg)
+{
+    <div>Loading...</div>
+}
+else
+{
+    if (Bug == null)
+    {
+        <div>Bug is not found</div>
+    }
+    else
+    {
+        <div hidden="@IsEditMode">
+            <div>Title: @Bug.Title</div>
+            <pre>Descirption: @Bug.Description</pre>
+            <div>Creation date: @Bug.CreationDate.ToLocalTime().ToString("f")</div>
+            <div>Last edit date: @Bug.LastEditDateTime.ToLocalTime().ToString("f")</div>
+            <div>Priority: @Bug.Priority?.Name</div>
+            <div>Status: @Bug.Status?.Name</div>
+            <div>Category: @Bug.Category?.Name</div>
+            <button @onclick="ToggleEditMode">Edit</button>
+        </div>
+
+        <div hidden="@(!IsEditMode)">
+            <TextInputRow Title="Name"
+            Placeholder="Enter bug name"
+            @bind-Value="EditBug!.Title"></TextInputRow>
+
+            <TextInputArea Title="Description"
+            Placeholder="Enter bug description"
+            @bind-Value="EditBug.Description"></TextInputArea>
+
+            <DropDownList Title="Priority"
+            Items="@Priorities"
+            @bind-Selected="EditPriority"></DropDownList>
+
+            <DropDownList Title="Status"
+            Items="@Statuses"
+            @bind-Selected="EditStatus"></DropDownList>
+
+            <DropDownList Title="Category"
+            Items="@Categories"
+            @bind-Selected="EditCategory"></DropDownList>
+
+            <button @onclick="SaveChanges">Save</button>
+            <button @onclick="CancelChanges">Cancel</button>
+        </div>
+    }
+}
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private Bug? Bug;
+    private Bug? EditBug;
+    private Priority? EditPriority { get; set; }
+    private Status? EditStatus { get; set; }
+    private Category? EditCategory { get; set; }
+
+    private List<Priority>? Priorities { get; set; }
+    private List<Status>? Statuses { get; set; }
+    private List<Category>? Categories { get; set; }
+
+    private bool IsLoadimg = true;
+    private bool IsEditMode { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+        IsLoadimg = false;
+    }
+
+    private async Task LoadDataAsync()
+    {
+        Bug = await _bugClient.GetByIdAsync(Id);
+        if (Bug != null)
+        {
+            Bug.Priority = await _prioritiesClient.GetByIdAsync(Bug.PriorityId);
+            Bug.Status = await _statusesClient.GetByIdAsync(Bug.StatusId);
+            Bug.Category = await _categoriesClient.GetByIdAsync(Bug.CategoryId);
+
+            EditBug = HelperMethods.CloneBug(Bug);
+
+            EditPriority = Bug.Priority;
+            EditStatus = Bug.Status;
+            EditCategory = Bug.Category;
+        }
+
+        Priorities = await _prioritiesClient.GetAllAsync();
+        Statuses = await _statusesClient.GetAllAsync();
+        Categories = await _categoriesClient.GetAllAsync();
+    }
+
+    private void ToggleEditMode() => IsEditMode = !IsEditMode;
+
+    private async Task SaveChanges()
+    {
+        if (EditBug != null)
+        {
+            EditBug.PriorityId = EditPriority?.Id;
+            EditBug.StatusId = EditStatus?.Id;
+            EditBug.CategoryId = EditCategory?.Id;
+
+            var response = await _bugClient.UpdateAsync(EditBug);
+
+            await LoadDataAsync();
+            IsEditMode = false;
+        }
+    }
+
+    private void CancelChanges()
+    {
+        EditBug = HelperMethods.CloneBug(Bug);
+        IsEditMode = !IsEditMode;
+    }
+}

@@ -1,0 +1,52 @@
+﻿@typeparam TItem where TItem : ISelectableItem
+
+@if (Selected != null)
+{
+    <button @onclick="Toggle">@Selected.Name</button>
+}
+else
+{
+    <button @onclick="Toggle">@Title</button>
+}
+
+@if (IsToggle)
+{
+    @foreach (var item in Items)
+    {
+        <DropDownListItem Item="item"
+        IsSelected="Equals(item, Selected)"
+        OnSelected="() => Select(item)"/>
+    }
+}
+
+@code {
+    [Parameter]
+    public required string Title { get; set; }
+
+    [Parameter]
+    public required List<TItem> Items { get; set; }
+
+    [Parameter]
+    public TItem? Selected { get; set; }
+    [Parameter] public EventCallback<TItem> SelectedChanged { get; set; }
+
+    private bool IsToggle { get; set; } = false;
+
+    private void Toggle() => IsToggle = !IsToggle;
+
+    private async Task Select(TItem item)
+    {
+        if (Equals(item, Selected))
+        {
+            Selected = default;
+            await SelectedChanged.InvokeAsync();
+            IsToggle = false;
+        }
+        else
+        {
+            Selected = item;
+            await SelectedChanged.InvokeAsync(item);
+            IsToggle = false;
+        }
+    }
+}

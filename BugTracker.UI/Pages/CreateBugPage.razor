@@ -1,0 +1,85 @@
+﻿@inject BugClient _bugClient;
+@inject PrioritiesClient _prioritiesClient;
+@inject StatusesClient _statusesClient;
+@inject CategoriesClient _categoriesClient;
+
+@page "/create-bug"
+
+@if (IsLoadimg)
+{
+    <div>Loading...</div>
+}
+else
+{
+    <TextInputRow Title="Title"
+                  Placeholder="Enter bug title"
+                  @bind-Value="Title"></TextInputRow>
+
+    <TextInputArea Title="Description"
+                   Placeholder="Enter bug description"
+                   @bind-Value="Description"></TextInputArea>
+
+    <DropDownList Title="Priority"
+                  Items="@Priorities"
+                  @bind-Selected="Priority"></DropDownList>
+
+    <DropDownList Title="Status"
+                  Items="@Statuses"
+                  @bind-Selected="Status"></DropDownList>
+
+    <DropDownList Title="Category"
+                  Items="@Categories"
+                  @bind-Selected="Category"></DropDownList>
+
+    <button @onclick="CreateBug">Create bug</button>
+}
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default;
+
+    private List<Priority>? Priorities { get; set; }
+    private List<Status>? Statuses { get; set; }
+    private List<Category>? Categories { get; set; }
+
+    private string Title { get; set; } = string.Empty;
+    private string Description { get; set; } = string.Empty;
+    private Priority? Priority { get; set; }
+    private Status? Status { get; set; }
+    private Category? Category { get; set; }
+
+
+    private bool IsLoadimg = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Priorities = await _prioritiesClient.GetAllAsync();
+            Statuses = await _statusesClient.GetAllAsync();
+            Categories = await _categoriesClient.GetAllAsync();
+        }
+        finally
+        {
+            IsLoadimg = false;
+        }
+
+    }
+
+    private async Task CreateBug()
+    {
+        Bug bug = new Bug
+            {
+                Title = this.Title,
+                Description = this.Description,
+                PriorityId = this.Priority?.Id,
+                StatusId = this.Status?.Id,
+                CategoryId = this.Category?.Id
+            };
+
+        var response = await _bugClient.CreateAsync(bug);
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}

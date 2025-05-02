@@ -1,0 +1,20 @@
+﻿<div @onclick="NavigateToBug">
+    <div>
+        @Bug.Id
+    </div>
+    <div>
+        @Bug.Title
+    </div>
+</div>
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    [Parameter]
+    public required Bug Bug { get; set; }
+
+    private void NavigateToBug()
+    {
+        NavigationManager.NavigateTo("/bug/" + Bug.Id);
+    }
+}
