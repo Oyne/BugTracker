@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BugTracker.Shared.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BugTracker.Shared.Models
 {
     [Table("Role")]
-    public class Role
+    public class Role : ISelectableItem
     {
         [Key]
         [Column("Id")]
