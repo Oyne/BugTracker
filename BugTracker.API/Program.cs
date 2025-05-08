@@ -14,9 +14,17 @@ namespace BugTracker.API
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Verify connection to database
-            using var connection = new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"));
-            connection.Open();
-            Console.WriteLine("Database connected successfully!");
+            try
+            {
+                using var connection = new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"));
+                connection.Open();
+                Console.WriteLine("Database connected successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Database connection failed: {ex.Message}");
+                throw; // Optional: rethrow to stop startup if DB is critical
+            }
 
             builder.Services.AddCors(options =>
             {

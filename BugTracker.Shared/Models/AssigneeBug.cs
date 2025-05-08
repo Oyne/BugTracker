@@ -15,13 +15,13 @@ namespace BugTracker.Shared.Models
 
         [ForeignKey("AssigneeId")]
         [Required]
-        public required AppUser Assignee { get; set; }
+        public AppUser? Assignee { get; set; }
 
         [Column("BugId")]
         public int BugId { get; set; }
 
         [ForeignKey("BugId")]
         [Required]
-        public required Bug Bug { get; set; }
+        public Bug? Bug { get; set; }
     }
 }

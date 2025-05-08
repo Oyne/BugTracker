@@ -16,8 +16,9 @@ namespace BugTracker.API.Controllers
             _context = context;
         }
 
+        // Get api/bugs
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Bug>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Bug>>> GetBugs()
         {
             return await _context.Bugs
                 .Include(b => b.Priority)
@@ -28,30 +29,32 @@ namespace BugTracker.API.Controllers
 
         // Get api/bugs/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Bug>> GetById(int id)
+        public async Task<ActionResult<Bug>> GetBugById(int id)
         {
             var bug = await _context.Bugs
                 .Include(b => b.Priority)
                 .Include(b => b.Status)
-                .Include(b => b.Category).FirstOrDefaultAsync(b => b.Id == id);
+                .Include(b => b.Category)
+                .FirstOrDefaultAsync(b => b.Id == id);
 
             if (bug == null)
             {
                 return NotFound(new
                 {
-                    error = "Bug Not found",
-                    details = $"Bug with Id: '{id}' does not exist"
+                    error = "Bug not found",
+                    details = $"Bug with id: '{id}' does not exist"
                 });
             }
             return new ObjectResult(bug);
         }
 
+        // Post api/bugs
         [HttpPost]
-        public async Task<ActionResult<Bug>> Post(Bug bug)
+        public async Task<ActionResult<Bug>> CreateBug(Bug bug)
         {
             if (bug == null)
             {
-                return BadRequest("Bug cannot be null");
+                return BadRequest("Body cannot be null");
             }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -68,7 +71,7 @@ namespace BugTracker.API.Controllers
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    return CreatedAtAction(nameof(GetById), new { id = bug.Id }, bug);
+                    return CreatedAtAction(nameof(GetBugById), new { id = bug.Id }, bug);
                 }
                 return Conflict(new
                 {
@@ -87,13 +90,13 @@ namespace BugTracker.API.Controllers
             }
         }
 
-        // Put api/bugs/
+        // Put api/bugs
         [HttpPut()]
-        public async Task<ActionResult<Bug>> Put(Bug bug)
+        public async Task<ActionResult<Bug>> UpdateBug(Bug bug)
         {
             if (bug == null)
             {
-                return BadRequest("Bug cannot be null");
+                return BadRequest("Body cannot be null");
             }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -105,8 +108,8 @@ namespace BugTracker.API.Controllers
                 {
                     return NotFound(new
                     {
-                        error = "Bug Not found",
-                        details = $"Bug with Id: '{bug.Id}' does not exist"
+                        error = "Bug not found",
+                        details = $"Bug with id: '{bug.Id}' does not exist"
                     });
                 }
 
@@ -121,7 +124,7 @@ namespace BugTracker.API.Controllers
                 await transaction.CommitAsync();
                 return Ok(new
                 {
-                    message = "Updated",
+                    message = "Bug updated",
                     details = $"Bug with id: '{existingBug.Id}' was updated"
                 });
             }
@@ -138,7 +141,7 @@ namespace BugTracker.API.Controllers
 
         // Delete api/bugs/{id}
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Bug>> Delete(int id)
+        public async Task<ActionResult<Bug>> DeleteBug(int id)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -149,8 +152,8 @@ namespace BugTracker.API.Controllers
                 {
                     return NotFound(new
                     {
-                        error = "Bug Not found",
-                        details = $"Bug with Id: '{id}' does not exist"
+                        error = "Bug not found",
+                        details = $"Bug with id: '{id}' does not exist"
                     });
                 }
 
@@ -159,7 +162,7 @@ namespace BugTracker.API.Controllers
                 await transaction.CommitAsync();
                 return Ok(new
                 {
-                    message = "Deleted",
+                    message = "Bug deleted",
                     details = $"Bug with id: '{existingBug.Id}' was deleted"
                 });
             }

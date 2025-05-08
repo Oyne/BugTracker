@@ -1,4 +1,4 @@
-﻿@inject BugClient _bugClient;
+﻿@inject BugsClient _bugClient;
 @inject PrioritiesClient _prioritiesClient;
 @inject StatusesClient _statusesClient;
 @inject CategoriesClient _categoriesClient;
@@ -36,6 +36,7 @@ else
             <TextInputArea Title="Description"
             Placeholder="Enter bug description"
             @bind-Value="EditBug.Description"></TextInputArea>
+
 
             <DropDownList Title="Priority"
             Items="@Priorities"
@@ -85,10 +86,6 @@ else
         Bug = await _bugClient.GetByIdAsync(Id);
         if (Bug != null)
         {
-            Bug.Priority = await _prioritiesClient.GetByIdAsync(Bug.PriorityId);
-            Bug.Status = await _statusesClient.GetByIdAsync(Bug.StatusId);
-            Bug.Category = await _categoriesClient.GetByIdAsync(Bug.CategoryId);
-
             EditBug = HelperMethods.CloneBug(Bug);
 
             EditPriority = Bug.Priority;
