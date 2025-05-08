@@ -28,6 +28,7 @@ else
 
     [Parameter]
     public TItem? Selected { get; set; }
+
     [Parameter] public EventCallback<TItem> SelectedChanged { get; set; }
 
     private bool IsToggle { get; set; } = false;
