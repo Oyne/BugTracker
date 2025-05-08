@@ -16,7 +16,7 @@ namespace BugTracker.API.Controllers
             _context = context;
         }
 
-        // GET api/assigneesbug/assignee/{id}
+        // GET api/assigneesbugs/assignee/{id}
         [HttpGet("assignee/{id}")]
         public async Task<ActionResult<IEnumerable<Bug>>> GetBugsByAssigneeId(int id)
         {
@@ -48,7 +48,7 @@ namespace BugTracker.API.Controllers
             return Ok(assignedBugs);
         }
 
-        // GET api/assigneesbug/bug/{id}
+        // GET api/assigneesbugs/bug/{id}
         [HttpGet("bug/{id}")]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetAssigneesByBugId(int id)
         {
@@ -80,6 +80,7 @@ namespace BugTracker.API.Controllers
             return Ok(assignedUsers);
         }
 
+        // POST api/assigneesbugs
         [HttpPost]
         public async Task<ActionResult<AssigneeBug>> AssignBugToUser(AssigneeBug assigneeBug)
         {
@@ -99,7 +100,7 @@ namespace BugTracker.API.Controllers
                     return NotFound(new
                     {
                         error = "User not found",
-                        details = $"User with Id: '{assigneeBug.AssigneeId}' does not exist"
+                        details = $"User with id: '{assigneeBug.AssigneeId}' does not exist"
                     });
                 }
 
@@ -109,7 +110,7 @@ namespace BugTracker.API.Controllers
                     return NotFound(new
                     {
                         error = "Bug not found",
-                        details = $"Bug with Id: '{assigneeBug.BugId}' does not exist"
+                        details = $"Bug with id: '{assigneeBug.BugId}' does not exist"
                     });
                 }
 
@@ -121,16 +122,14 @@ namespace BugTracker.API.Controllers
                     return Conflict(new
                     {
                         error = "Conflict",
-                        details = $"User with Id: '{assigneeBug.AssigneeId}' is already assigned to bug Id: '{assigneeBug.BugId}'"
+                        details = $"User with id: '{assigneeBug.AssigneeId}' is already assigned to bug id: '{assigneeBug.BugId}'"
                     });
                 }
 
                 var assignment = new AssigneeBug
                 {
                     AssigneeId = assigneeBug.AssigneeId,
-                    Assignee = user,
-                    BugId = assigneeBug.BugId,
-                    Bug = bug
+                    BugId = assigneeBug.BugId
                 };
 
                 _context.AssigneesBugs.Add(assignment);
@@ -147,6 +146,44 @@ namespace BugTracker.API.Controllers
                         bugTitle = bug.Title,
                         assigneeName = user.FirstName + " " + user.LastName,
                     }
+                });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new
+                {
+                    error = "An unexpected error occurred",
+                    details = ex.Message
+                });
+            }
+        }
+
+        // Delete api/assigneesbugs/{id}
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<AssigneeBug>> Unassign(int id)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var assignedUser = await _context.AssigneesBugs.FirstOrDefaultAsync(ab => ab.Id == id);
+                if (assignedUser == null)
+                {
+                    return NotFound(new
+                    {
+                        error = "Assignment not found",
+                        details = $"Assignment with id: '{id}' does not exist"
+                    });
+                }
+
+                _context.AssigneesBugs.Remove(assignedUser);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return Ok(new
+                {
+                    message = "Assignment deleted",
+                    details = $"Assignment with id: '{assignedUser.Id}' was deleted"
                 });
             }
             catch (Exception ex)
