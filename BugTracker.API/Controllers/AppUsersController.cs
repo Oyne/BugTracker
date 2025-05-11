@@ -62,6 +62,25 @@ namespace BugTracker.API.Controllers
             return new ObjectResult(user);
         }
 
+        // Get api/appusers/by-username/{username}
+        [HttpGet("by-username/{username}")]
+        public async Task<ActionResult<AppUser>> GetUserByUsername(string username)
+        {
+            var user = await _context.AppUsers
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserName == username);
+
+            if (user == null)
+            {
+                return NotFound(new
+                {
+                    error = "User not found",
+                    details = $"User with username: '{username}' does not exist"
+                });
+            }
+            return new ObjectResult(user);
+        }
+
         // Post api/appusers
         [HttpPost]
         public async Task<ActionResult<AppUser>> CreateUser(AppUser user)
@@ -135,7 +154,7 @@ namespace BugTracker.API.Controllers
                 }
 
                 existingUser.Email = user.Email;
-                existingUser.Username = user.Username;
+                existingUser.UserName = user.UserName;
                 existingUser.Password = user.Password;
                 existingUser.FirstName = user.FirstName;
                 existingUser.LastName = user.LastName;
