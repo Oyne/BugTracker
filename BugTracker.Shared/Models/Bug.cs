@@ -36,6 +36,24 @@ namespace BugTracker.Shared.Models
         [ForeignKey("CategoryId")]
         public Category? Category { get; set; }
 
+        [Column("AuthorId")]
+        public int? AuthorId { get; set; }
+
+        [ForeignKey("AuthorId")]
+        public AppUser? Author { get; set; }
+
+        [Column("LastEditorId")]
+        public int? LastEditorId { get; set; }
+
+        [ForeignKey("LastEditorId")]
+        public AppUser? LastEditor { get; set; }
+
+        [Column("AssigneeId")]
+        public int? AssigneeId { get; set; }
+
+        [ForeignKey("AssigneeId")]
+        public AppUser? Assignee { get; set; }
+
         [Column("CreationDateTime")]
         public DateTime CreationDate { get; set; }
 
@@ -44,7 +62,5 @@ namespace BugTracker.Shared.Models
 
         [Column("LoggedTime")]
         public TimeSpan? LoggedTime { get; set; }
-
-        public List<AssigneeBug> AssignedBugs { get; set; } = new();
     }
 }

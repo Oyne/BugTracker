@@ -1,11 +1,6 @@
-﻿@inject BugsClient _bugClient;
-@inject PrioritiesClient _prioritiesClient;
-@inject StatusesClient _statusesClient;
-@inject CategoriesClient _categoriesClient;
+﻿@page "/bug/{Id:int}"
 
-@page "/bug/{Id:int}"
-
-@if (IsLoadimg)
+@if (IsLoading)
 {
     <div>Loading...</div>
 }
@@ -25,30 +20,32 @@ else
             <div>Priority: @Bug.Priority?.Name</div>
             <div>Status: @Bug.Status?.Name</div>
             <div>Category: @Bug.Category?.Name</div>
+            <div>Author: @Bug.Author?.FirstName @Bug.Author?.LastName</div>
+            <div>Last editor: @Bug.LastEditor?.FirstName @Bug.LastEditor?.LastName</div>
             <button @onclick="ToggleEditMode">Edit</button>
         </div>
 
         <div hidden="@(!IsEditMode)">
             <TextInputRow Title="Name"
-            Placeholder="Enter bug name"
-            @bind-Value="EditBug!.Title"></TextInputRow>
+                          Placeholder="Enter bug name"
+                          @bind-Value="EditBug!.Title"></TextInputRow>
 
             <TextInputArea Title="Description"
-            Placeholder="Enter bug description"
-            @bind-Value="EditBug.Description"></TextInputArea>
+                           Placeholder="Enter bug description"
+                           @bind-Value="EditBug.Description"></TextInputArea>
 
 
             <DropDownList Title="Priority"
-            Items="@Priorities"
-            @bind-Selected="EditPriority"></DropDownList>
+                          Items="@Priorities"
+                          @bind-Selected="EditBug.Priority"></DropDownList>
 
             <DropDownList Title="Status"
-            Items="@Statuses"
-            @bind-Selected="EditStatus"></DropDownList>
+                          Items="@Statuses"
+                          @bind-Selected="EditBug.Status"></DropDownList>
 
             <DropDownList Title="Category"
-            Items="@Categories"
-            @bind-Selected="EditCategory"></DropDownList>
+                          Items="@Categories"
+                          @bind-Selected="EditBug.Category"></DropDownList>
 
             <button @onclick="SaveChanges">Save</button>
             <button @onclick="CancelChanges">Cancel</button>
@@ -58,44 +55,43 @@ else
 
 @code {
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private UserState UserState { get; set; } = default!;
+    [Inject] private BugClient BugClient { get; set; } = default!;
+    [Inject] private PriorityClient PriorityClient { get; set; } = default!;
+    [Inject] private StatusClient StatusClient { get; set; } = default!;
+    [Inject] private CategoryClient CategoryClient { get; set; } = default!;
+    [Inject] private ToastService ToastService { get; set; } = default!;    
 
     [Parameter]
     public int Id { get; set; }
 
+    private bool IsLoading = true;
+    private bool IsEditMode { get; set; } = false;
+
     private Bug? Bug;
     private Bug? EditBug;
-    private Priority? EditPriority { get; set; }
-    private Status? EditStatus { get; set; }
-    private Category? EditCategory { get; set; }
 
     private List<Priority>? Priorities { get; set; }
     private List<Status>? Statuses { get; set; }
     private List<Category>? Categories { get; set; }
 
-    private bool IsLoadimg = true;
-    private bool IsEditMode { get; set; } = false;
-
     protected override async Task OnInitializedAsync()
     {
         await LoadDataAsync();
-        IsLoadimg = false;
+        IsLoading = false;
     }
 
     private async Task LoadDataAsync()
     {
-        Bug = await _bugClient.GetByIdAsync(Id);
+        Bug = await BugClient.GetByIdAsync(Id);
         if (Bug != null)
         {
             EditBug = HelperMethods.CloneBug(Bug);
-
-            EditPriority = Bug.Priority;
-            EditStatus = Bug.Status;
-            EditCategory = Bug.Category;
         }
 
-        Priorities = await _prioritiesClient.GetAllAsync();
-        Statuses = await _statusesClient.GetAllAsync();
-        Categories = await _categoriesClient.GetAllAsync();
+        Priorities = await PriorityClient.GetAllAsync();
+        Statuses = await StatusClient.GetAllAsync();
+        Categories = await CategoryClient.GetAllAsync();
     }
 
     private void ToggleEditMode() => IsEditMode = !IsEditMode;
@@ -104,11 +100,11 @@ else
     {
         if (EditBug != null)
         {
-            EditBug.PriorityId = EditPriority?.Id;
-            EditBug.StatusId = EditStatus?.Id;
-            EditBug.CategoryId = EditCategory?.Id;
-
-            var response = await _bugClient.UpdateAsync(EditBug);
+            EditBug.LastEditorId = UserState.CurrentUser?.Id;
+            var response = await BugClient.UpdateAsync(EditBug);
+            ToastService.ShowToast(new ToastMessage(
+               message: "Bug updated succesfully",
+               level: ToastLevel.Success));
 
             await LoadDataAsync();
             IsEditMode = false;

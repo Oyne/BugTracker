@@ -1,0 +1,123 @@
+﻿@page "/login"
+
+<div hidden="@IsRegisterMode">
+    <TextInputRow Title="Email/Username"
+                  Placeholder="Enter email/username"
+                  @bind-Value="EmailUsername"></TextInputRow>
+    <TextInputRow Title="Password"
+                  Placeholder="Enter password"
+                  @bind-Value="LoginPassword"></TextInputRow>
+    <button @onclick="Login">Login</button>
+    <button @onclick="ToggleRegisterMode">Register</button>
+    <div>
+        <input type="checkbox" @bind="RememberMe" /> Remember me
+    </div>
+</div>
+
+<div hidden="@(!IsRegisterMode)">
+    <TextInputRow Title="Email"
+                  Placeholder="Enter email"
+                  @bind-Value="Email"></TextInputRow>
+    <TextInputRow Title="Username"
+                  Placeholder="Username"
+                  @bind-Value="UserName "></TextInputRow>
+    <TextInputRow Title="Password"
+                  Placeholder="Enter password"
+                  @bind-Value="RegisterPassword"></TextInputRow>
+    <TextInputRow Title="First name"
+                  Placeholder="Enter first name"
+                  @bind-Value="FirstName"></TextInputRow>
+    <TextInputRow Title="Last name"
+                  Placeholder="Enter last name"
+                  @bind-Value="LastName"></TextInputRow>
+    <button @onclick="Register">Register</button>
+</div>
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private UserState UserState { get; set; } = default!;
+    [Inject] private AppUserClient AppUsersClient { get; set; } = default!;
+    [Inject] private ToastService ToastService { get; set; } = default!;
+
+    private string? EmailUsername { get; set; }
+    private string? LoginPassword { get; set; }
+    private string? Email { get; set; }
+    private string? UserName { get; set; }
+    private string? RegisterPassword { get; set; }
+    private string? FirstName { get; set; }
+    private string? LastName { get; set; }
+
+    private bool RememberMe { get; set; } = false;
+    private bool IsRegisterMode { get; set; } = false;
+
+    private async Task Login()
+    {
+        if (!string.IsNullOrWhiteSpace(EmailUsername))
+        {
+            var user = await AppUsersClient.GetUserByEmail(EmailUsername);
+            if (user == null)
+            {
+                user = await AppUsersClient.GetUserByUsername(EmailUsername);
+            }
+            if (!string.IsNullOrWhiteSpace(LoginPassword))
+            {
+                if (user.Password == PasswordMethods.HashPassword(LoginPassword))
+                {
+                    await UserState.SetUser(user, RememberMe);
+                    ToastService.ShowToast(new ToastMessage(
+                        message: "Successfully logged in",
+                        level: ToastLevel.Success));
+                    NavigationManager.NavigateTo("/");
+                }
+            }
+
+        }
+    }
+
+    private async Task Register()
+    {
+        if (!string.IsNullOrWhiteSpace(Email)
+        && !string.IsNullOrWhiteSpace(UserName)
+        && !string.IsNullOrWhiteSpace(RegisterPassword)
+        && !string.IsNullOrWhiteSpace(FirstName)
+        && !string.IsNullOrWhiteSpace(LastName))
+        {
+            var newUser = new AppUser
+                {
+                    Email = Email,
+                    UserName = UserName,
+                    Password = PasswordMethods.HashPassword(RegisterPassword),
+                    FirstName = FirstName,
+                    LastName = LastName
+                };
+            try
+            {
+                await AppUsersClient.CreateAsync(newUser);
+
+                var createdUser = await AppUsersClient.GetUserByEmail(Email);
+                if (createdUser is not null)
+                {
+                    await UserState.SetUser(createdUser);
+                    ToastService.ShowToast(new ToastMessage(
+                        message: "User registered successfully",
+                        level: ToastLevel.Success));
+                    NavigationManager.NavigateTo("/");
+                }
+                else
+                {
+                    ToastService.ShowToast(new ToastMessage(
+                        message: "Something went wrong, please try again.",
+                        level: ToastLevel.Error));
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastService.ShowToast(new ToastMessage(
+                    message: $"Error during registration: {ex.Message}",
+                    level: ToastLevel.Error));
+            }
+        }
+    }
+
+    private void ToggleRegisterMode() => IsRegisterMode = !IsRegisterMode;
+}

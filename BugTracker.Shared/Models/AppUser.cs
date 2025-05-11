@@ -16,7 +16,7 @@ namespace BugTracker.Shared.Models
 
         [Column("Username")]
         [Required]
-        public required string Username { get; set; }
+        public required string UserName { get; set; }
 
         [Column("Password")]
         [Required]
@@ -33,7 +33,5 @@ namespace BugTracker.Shared.Models
 
         [ForeignKey("RoleId")]
         public Role? Role { get; set; }
-
-        public List<AssigneeBug> AssignedBugs { get; set; } = new();
     }
 }

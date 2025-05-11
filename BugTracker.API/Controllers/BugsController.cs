@@ -24,6 +24,9 @@ namespace BugTracker.API.Controllers
                 .Include(b => b.Priority)
                 .Include(b => b.Status)
                 .Include(b => b.Category)
+                .Include(b => b.Author)
+                .Include(b => b.LastEditor)
+                .Include(b => b.Assignee)
                 .ToListAsync();
         }
 
@@ -35,6 +38,9 @@ namespace BugTracker.API.Controllers
                 .Include(b => b.Priority)
                 .Include(b => b.Status)
                 .Include(b => b.Category)
+                .Include(b => b.Author)
+                .Include(b => b.LastEditor)
+                .Include(b => b.Assignee)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
             if (bug == null)
@@ -118,6 +124,9 @@ namespace BugTracker.API.Controllers
                 existingBug.PriorityId = bug.PriorityId;
                 existingBug.StatusId = bug.StatusId;
                 existingBug.CategoryId = bug.CategoryId;
+                existingBug.AuthorId = bug.AuthorId;
+                existingBug.LastEditorId = bug.LastEditorId;
+                existingBug.AssigneeId = bug.AssigneeId;
                 existingBug.LastEditDateTime = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
