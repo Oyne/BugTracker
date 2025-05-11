@@ -1,11 +1,6 @@
-﻿@inject BugsClient _bugClient;
-@inject PrioritiesClient _prioritiesClient;
-@inject StatusesClient _statusesClient;
-@inject CategoriesClient _categoriesClient;
+﻿@page "/create-bug"
 
-@page "/create-bug"
-
-@if (IsLoadimg)
+@if (IsLoading)
 {
     <div>Loading...</div>
 }
@@ -35,7 +30,13 @@ else
 }
 
 @code {
-    [Inject] private NavigationManager NavigationManager { get; set; } = default;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private UserState UserState { get; set; } = default!;
+    [Inject] private BugClient BugClient { get; set; } = default!;
+    [Inject] private PriorityClient PriorityClient { get; set; } = default!;
+    [Inject] private StatusClient StatusClient { get; set; } = default!;
+    [Inject] private CategoryClient CategoryClient { get; set; } = default!;
+    [Inject] private ToastService ToastService { get; set; } = default!;
 
     private List<Priority>? Priorities { get; set; }
     private List<Status>? Statuses { get; set; }
@@ -47,22 +48,19 @@ else
     private Status? Status { get; set; }
     private Category? Category { get; set; }
 
-
-    private bool IsLoadimg = true;
+    private bool IsLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            Priorities = await _prioritiesClient.GetAllAsync();
-            Statuses = await _statusesClient.GetAllAsync();
-            Categories = await _categoriesClient.GetAllAsync();
-        }
-        finally
-        {
-            IsLoadimg = false;
-        }
+        await LoadDataAsync();
+        IsLoading = false;
+    }
 
+    private async Task LoadDataAsync()
+    {
+        Priorities = await PriorityClient.GetAllAsync();
+        Statuses = await StatusClient.GetAllAsync();
+        Categories = await CategoryClient.GetAllAsync();
     }
 
     private async Task CreateBug()
@@ -73,12 +71,19 @@ else
                 Description = this.Description,
                 PriorityId = this.Priority?.Id,
                 StatusId = this.Status?.Id,
-                CategoryId = this.Category?.Id
+                CategoryId = this.Category?.Id,
+                AuthorId = UserState.CurrentUser?.Id,
+                LastEditorId = UserState.CurrentUser?.Id
             };
 
-        var response = await _bugClient.CreateAsync(bug);
+        var response = await BugClient.CreateAsync(bug);
         if (response.IsSuccessStatusCode)
         {
+
+            ToastService.ShowToast(new ToastMessage(
+                message: "Bug created succesfully",
+                level: ToastLevel.Success));
+
             NavigationManager.NavigateTo("/");
         }
     }

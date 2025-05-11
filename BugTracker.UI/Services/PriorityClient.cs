@@ -3,11 +3,11 @@ using System.Net.Http.Json;
 
 namespace BugTracker.UI.Services
 {
-    public class PrioritiesClient : BaseApiClient<Priority>
+    public class PriorityClient : BaseApiClient<Priority>
     {
         private string _endpoint = "priorities";
 
-        public PrioritiesClient(HttpClient httpClient) : base(httpClient, "priorities")
+        public PriorityClient(HttpClient httpClient) : base(httpClient, "priorities")
         {
         }
 

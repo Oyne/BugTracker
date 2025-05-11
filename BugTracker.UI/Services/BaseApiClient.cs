@@ -20,7 +20,19 @@ namespace BugTracker.UI.Services
 
         public async Task<T?> GetByIdAsync(int? id)
         {
-            return await _httpClient.GetFromJsonAsync<T?>($"api/{_endpoint}/{id}");
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<T?>($"api/{_endpoint}/{id}");
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return default;
+                }
+
+                throw;
+            }
         }
 
         public async Task<HttpResponseMessage> CreateAsync(T item)

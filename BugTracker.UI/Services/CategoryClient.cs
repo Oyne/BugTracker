@@ -3,11 +3,11 @@ using System.Net.Http.Json;
 
 namespace BugTracker.UI.Services
 {
-    public class CategoriesClient : BaseApiClient<Category>
+    public class CategoryClient : BaseApiClient<Category>
     {
         private string _endpoint = "categories";
 
-        public CategoriesClient(HttpClient httpClient) : base(httpClient, "categories")
+        public CategoryClient(HttpClient httpClient) : base(httpClient, "categories")
         {
         }
 
