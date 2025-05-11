@@ -1,34 +1,50 @@
-﻿@inject HttpClient httpClient
-
-@page "/"
+﻿@page "/"
 
 <PageTitle>Index</PageTitle>
 <button class="btn btn-primary" @onclick="GoToBugCreation">Create Bug</button>
 
-@if (bugs?.Any() == true)
+@if (IsLoading)
 {
-    @foreach (var bug in bugs)
-    {
-        <BugListItem Bug="bug"></BugListItem>
-    }
+    <div>Loading...</div>
 }
 else
 {
-    <p>Loading or no bugs found...</p>
+    @if (Bugs != null)
+    {
+        @foreach (var bug in Bugs)
+        {
+            <BugListItem Bug="bug"></BugListItem>
+        }
+
+    }
 }
 
 @code {
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private UserState UserState { get; set; } = default!;
+    [Inject] private BugClient BugsClient { get; set; } = default!;
+
+    private bool IsLoading = true;
+
+    private List<Bug>? Bugs { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!UserState.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+        await LoadDataAsync();
+        IsLoading = false;
+    }
+
+    private async Task LoadDataAsync()
+    {
+        Bugs = await BugsClient.GetAllAsync();
+    }
 
     private void GoToBugCreation()
     {
         NavigationManager.NavigateTo("/create-bug");
-    }
-
-    private List<Bug>? bugs = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        bugs = await httpClient.GetFromJsonAsync<List<Bug>>("/api/bugs");
     }
 }
