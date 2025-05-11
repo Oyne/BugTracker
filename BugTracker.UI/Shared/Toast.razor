@@ -1,0 +1,24 @@
+﻿<div class="toast @GetCssClass(ToastMessage.Level)">
+    @ToastMessage.Message
+</div>
+
+@code {
+    [Inject] private ToastService ToastService { get; set; } = default!;
+
+    [Parameter] public ToastMessage ToastMessage { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(3000); // Auto-dismiss after 3 seconds
+        ToastService.RemoveToast(ToastMessage.Id);
+    }
+
+    private string GetCssClass(ToastLevel level) => level switch
+    {
+        ToastLevel.Info => "toast-info",
+        ToastLevel.Success => "toast-success",
+        ToastLevel.Warning => "toast-warning",
+        ToastLevel.Error => "toast-error",
+        _ => "toast-info"
+    };
+}

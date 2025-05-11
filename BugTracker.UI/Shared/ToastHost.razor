@@ -1,0 +1,22 @@
+﻿@implements IDisposable
+
+<div style="background-color: yellow">
+    @foreach (var toast in ToastService.Toasts)
+    {
+        <Toast @key="toast.Id" ToastMessage="toast" />
+    }
+</div>
+
+@code {
+    [Inject] private ToastService ToastService { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnToastsUpdated += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        ToastService.OnToastsUpdated -= StateHasChanged;
+    }
+}
