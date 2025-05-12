@@ -1,3 +1,27 @@
+@font-face {
+    font-family: 'CoralPixels';
+    src: url('../fonts/CoralPixels-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'ComicNeue';
+    src: url('../fonts/ComicNeue-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('../fonts/Montserrat-VariableFont_wght.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('../fonts/Roboto-VariableFont_wdth,wght.ttf');
+}
+
+* {
+    font-family: ComicNeue, sans-serif;
+}
+
 h1:focus {
     outline: none;
 }

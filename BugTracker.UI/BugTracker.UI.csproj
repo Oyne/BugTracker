@@ -15,4 +15,8 @@
     <ProjectReference Include="..\BugTracker.Shared\BugTracker.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\webfonts\" />
+  </ItemGroup>
+
 </Project>
