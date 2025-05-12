@@ -5,6 +5,12 @@
                   value="@Value"
                   @oninput="OnValueChanged" />
     </div>
+    @if (!string.IsNullOrWhiteSpace(ValidationMessage))
+    {
+        <div>
+            @ValidationMessage
+        </div>
+    }
 </div>
 
 @code
@@ -15,6 +21,8 @@
     public string Placeholder { get; set; } = "Enter";
     [Parameter]
     public string? Value { get; set; }
+    [Parameter]
+    public string? ValidationMessage { get; set; }
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
 
