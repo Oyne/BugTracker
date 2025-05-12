@@ -9,7 +9,7 @@ else
     <button @onclick="Toggle">@Title</button>
 }
 
-@if (IsToggle)
+@if (IsToggle && Items != null)
 {
     @foreach (var item in Items)
     {
