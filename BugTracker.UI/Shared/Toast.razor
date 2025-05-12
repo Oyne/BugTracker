@@ -1,5 +1,10 @@
 ﻿<div class="toast @GetCssClass(ToastMessage.Level)">
-    @ToastMessage.Message
+    <div>
+        @ToastMessage.Level.ToString()
+    </div>
+    <div>
+        @ToastMessage.Message
+    </div>
 </div>
 
 @code {
