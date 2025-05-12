@@ -11,7 +11,7 @@ namespace BugTracker.UI.Services
         {
         }
 
-        public async Task<List<Bug>?> GetBugsWithPriority(int id)
+        public async Task<List<Bug>?> GetBugsWithPriorityAsync(int id)
         {
             return await _httpClient.GetFromJsonAsync<List<Bug>>($"api/{_endpoint}/{id}/bugs");
         }

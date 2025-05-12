@@ -54,10 +54,10 @@
     {
         if (!string.IsNullOrWhiteSpace(EmailUsername))
         {
-            var user = await AppUsersClient.GetUserByEmail(EmailUsername);
+            var user = await AppUsersClient.GetUserByEmailAsync(EmailUsername);
             if (user == null)
             {
-                user = await AppUsersClient.GetUserByUsername(EmailUsername);
+                user = await AppUsersClient.GetUserByUsernameAsync(EmailUsername);
             }
             if (!string.IsNullOrWhiteSpace(LoginPassword))
             {
@@ -94,7 +94,7 @@
             {
                 await AppUsersClient.CreateAsync(newUser);
 
-                var createdUser = await AppUsersClient.GetUserByEmail(Email);
+                var createdUser = await AppUsersClient.GetUserByEmailAsync(Email);
                 if (createdUser is not null)
                 {
                     await UserState.SetUser(createdUser);

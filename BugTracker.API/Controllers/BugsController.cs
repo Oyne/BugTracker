@@ -54,6 +54,30 @@ namespace BugTracker.API.Controllers
             return new ObjectResult(bug);
         }
 
+        // Get api/bugs/by-title/{title}
+        [HttpGet("by-title/{title}")]
+        public async Task<ActionResult<Bug>> GetBugByTitle(string title)
+        {
+            var bug = await _context.Bugs
+                .Include(b => b.Priority)
+                .Include(b => b.Status)
+                .Include(b => b.Category)
+                .Include(b => b.Author)
+                .Include(b => b.LastEditor)
+                .Include(b => b.Assignee)
+                .FirstOrDefaultAsync(b => b.Title == title);
+
+            if (bug == null)
+            {
+                return NotFound(new
+                {
+                    error = "Bug not found",
+                    details = $"Bug with title: '{title}' does not exist"
+                });
+            }
+            return new ObjectResult(bug);
+        }
+
         // Post api/bugs
         [HttpPost]
         public async Task<ActionResult<Bug>> CreateBug(Bug bug)

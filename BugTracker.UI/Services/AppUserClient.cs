@@ -11,7 +11,7 @@ namespace BugTracker.UI.Services
         {
         }
 
-        public async Task<AppUser?> GetUserByEmail(string email)
+        public async Task<AppUser?> GetUserByEmailAsync(string email)
         {
             try
             {
@@ -28,7 +28,7 @@ namespace BugTracker.UI.Services
             }
         }
 
-        public async Task<AppUser?> GetUserByUsername(string username)
+        public async Task<AppUser?> GetUserByUsernameAsync(string username)
         {
             try
             {

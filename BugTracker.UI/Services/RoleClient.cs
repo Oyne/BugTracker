@@ -11,7 +11,7 @@ namespace BugTracker.UI.Services
         {
         }
 
-        public async Task<List<AppUser>?> GetUsersWithRole(int id)
+        public async Task<List<AppUser>?> GetUsersWithRoleAsync(int id)
         {
             return await _httpClient.GetFromJsonAsync<List<AppUser>>($"api/{_endpoint}/{id}/users");
         }
