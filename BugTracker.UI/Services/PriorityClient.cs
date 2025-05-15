@@ -5,9 +5,9 @@ namespace BugTracker.UI.Services
 {
     public class PriorityClient : BaseApiClient<Priority>
     {
-        private string _endpoint = "priorities";
+        private static string _endpoint = "priorities";
 
-        public PriorityClient(HttpClient httpClient) : base(httpClient, "priorities")
+        public PriorityClient(HttpClient httpClient) : base(httpClient, _endpoint)
         {
         }
 

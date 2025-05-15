@@ -5,9 +5,9 @@ namespace BugTracker.UI.Services
 {
     public class BugClient : BaseApiClient<Bug>
     {
-        private string _endpoint = "bugs";
+        private static string _endpoint = "bugs";
 
-        public BugClient(HttpClient httpClient) : base(httpClient, "bugs")
+        public BugClient(HttpClient httpClient) : base(httpClient, _endpoint)
         {
         }
 

@@ -46,15 +46,10 @@ namespace BugTracker.UI.Services
             return default;
         }
 
-        public async Task<T?> UpdateAsync(T item)
+        public async Task<bool> UpdateAsync(T item)
         {
             var response = await _httpClient.PutAsJsonAsync($"api/{_endpoint}", item);
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<T>();
-            }
-
-            return default;
+            return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> DeleteAsync(int id)

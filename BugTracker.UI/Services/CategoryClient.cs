@@ -5,9 +5,9 @@ namespace BugTracker.UI.Services
 {
     public class CategoryClient : BaseApiClient<Category>
     {
-        private string _endpoint = "categories";
+        private static string _endpoint = "categories";
 
-        public CategoryClient(HttpClient httpClient) : base(httpClient, "categories")
+        public CategoryClient(HttpClient httpClient) : base(httpClient, _endpoint)
         {
         }
 
