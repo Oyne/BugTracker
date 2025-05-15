@@ -8,18 +8,8 @@
     src: url('../fonts/ComicNeue-Regular.ttf');
 }
 
-@font-face {
-    font-family: 'Montserrat';
-    src: url('../fonts/Montserrat-VariableFont_wght.ttf');
-}
-
-@font-face {
-    font-family: 'Roboto';
-    src: url('../fonts/Roboto-VariableFont_wdth,wght.ttf');
-}
-
 * {
-    font-family: ComicNeue, sans-serif;
+    font-family: "Comic Sans MS", ComicNeue, CoralPixels;
 }
 
 h1:focus {
