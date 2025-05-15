@@ -1,4 +1,4 @@
-﻿<div @onclick="NavigateToBug">
+﻿<div @onclick="() => NavigationService.NavigateToBugPage(Bug.Id)">
     <div>
         @Bug.Id
     </div>
@@ -8,13 +8,8 @@
 </div>
 
 @code {
-    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private NavigationService NavigationService { get; set; } = default!;
 
     [Parameter]
     public required Bug Bug { get; set; }
-
-    private void NavigateToBug()
-    {
-        NavigationManager.NavigateTo("/bug/" + Bug.Id);
-    }
 }

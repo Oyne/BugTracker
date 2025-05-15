@@ -9,7 +9,8 @@
     [Parameter]
     public bool IsSelected { get; set; } = false;
 
-    [Parameter] public EventCallback OnSelected { get; set; }
+    [Parameter] 
+    public EventCallback OnSelected { get; set; }
 
     private async Task Selected()
     {

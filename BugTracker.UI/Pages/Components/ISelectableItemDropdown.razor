@@ -13,9 +13,9 @@ else
 {
     @foreach (var item in Items)
     {
-        <DropDownListItem Item="item"
-        IsSelected="Equals(item, Selected)"
-        OnSelected="() => Select(item)"/>
+        <ISelectableItemDropdownItem Item="item"
+                                     IsSelected="Equals(item, Selected)"
+                                     OnSelected="() => Select(item)" />
     }
 }
 
@@ -29,7 +29,8 @@ else
     [Parameter]
     public TItem? Selected { get; set; }
 
-    [Parameter] public EventCallback<TItem> SelectedChanged { get; set; }
+    [Parameter] 
+    public EventCallback<TItem?> SelectedChanged { get; set; }
 
     private bool IsToggle { get; set; } = false;
 
@@ -37,17 +38,15 @@ else
 
     private async Task Select(TItem item)
     {
+        IsToggle = false;
+
         if (Equals(item, Selected))
         {
-            Selected = default;
-            await SelectedChanged.InvokeAsync();
-            IsToggle = false;
+            await SelectedChanged.InvokeAsync(default);
         }
         else
         {
-            Selected = item;
             await SelectedChanged.InvokeAsync(item);
-            IsToggle = false;
         }
     }
 }

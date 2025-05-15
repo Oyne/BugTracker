@@ -22,51 +22,72 @@ else
             <div>Category: @Bug.Category?.Name</div>
             <div>Author: @Bug.Author?.FirstName @Bug.Author?.LastName</div>
             <div>Last editor: @Bug.LastEditor?.FirstName @Bug.LastEditor?.LastName</div>
+            <div>Assignee: @Bug.Assignee?.FirstName @Bug.Assignee?.LastName</div>
             <button @onclick="ToggleEditMode">Edit</button>
         </div>
 
         <div hidden="@(!IsEditMode)">
             <TextInputRow Title="Name"
-                          Placeholder="Enter bug name"
+                          Placeholder="Enter bug title"
+                          ValidationMessage="@TitleWarning"
                           @bind-Value="EditBug!.Title"></TextInputRow>
 
             <TextInputArea Title="Description"
                            Placeholder="Enter bug description"
+                           ValidationMessage="@DescriptionWarning"
                            @bind-Value="EditBug.Description"></TextInputArea>
 
 
-            <DropDownList Title="Priority"
-                          Items="@Priorities"
-                          @bind-Selected="EditBug.Priority"></DropDownList>
+            <ISelectableItemDropdown Title="Priority"
+                                     Items="@(Priorities!)"
+                                     Selected="EditBug.Priority"
+                                     SelectedChanged="(Priority p) => DropdownSelectedChange(p)"></ISelectableItemDropdown>
 
-            <DropDownList Title="Status"
-                          Items="@Statuses"
-                          @bind-Selected="EditBug.Status"></DropDownList>
+            <ISelectableItemDropdown Title="Status"
+                                     Items="@(Statuses!)"
+                                     Selected="EditBug.Status"
+                                     SelectedChanged="(Status s) => DropdownSelectedChange(s)"></ISelectableItemDropdown>
 
-            <DropDownList Title="Category"
-                          Items="@Categories"
-                          @bind-Selected="EditBug.Category"></DropDownList>
+            <ISelectableItemDropdown Title="Category"
+                                     Items="@(Categories!)"
+                                     Selected="EditBug.Category"
+                                     SelectedChanged="(Category c) => DropdownSelectedChange(c)"></ISelectableItemDropdown>
 
-            <button @onclick="SaveChanges">Save</button>
-            <button @onclick="CancelChanges">Cancel</button>
+            <UserDropdown Title="Assignee"
+                          Users="@(Users!)"
+                          Selected="EditBug.Assignee"
+                          SelectedChanged="(AppUser u) => DropdownSelectedChange(u)"></UserDropdown>
+
+            <button @onclick="SaveChanges"> Save </button>
+            <button @onclick="CancelChanges"> Cancel </button>
         </div>
     }
 }
 
 @code {
-    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
-    [Inject] private UserState UserState { get; set; } = default!;
-    [Inject] private BugClient BugClient { get; set; } = default!;
-    [Inject] private PriorityClient PriorityClient { get; set; } = default!;
-    [Inject] private StatusClient StatusClient { get; set; } = default!;
-    [Inject] private CategoryClient CategoryClient { get; set; } = default!;
-    [Inject] private ToastService ToastService { get; set; } = default!;    
+    [Inject]
+    private NavigationService NavigationService { get; set; } = default!;
+    [Inject]
+    private UserState UserState { get; set; } = default!;
+    [Inject]
+    private BugClient BugClient { get; set; } = default!;
+    [Inject]
+    private PriorityClient PriorityClient { get; set; } = default!;
+    [Inject]
+    private StatusClient StatusClient { get; set; } = default!;
+    [Inject]
+    private CategoryClient CategoryClient { get; set; } = default!;
+    [Inject]
+    private AppUserClient AppUserClient { get; set; } = default!;
+    [Inject]
+    private ToastService ToastService { get; set; } = default!;
 
     [Parameter]
     public int Id { get; set; }
 
     private bool IsLoading = true;
     private bool IsEditMode { get; set; } = false;
+    private bool IsEditDataLoaded { get; set; } = false;
 
     private Bug? Bug;
     private Bug? EditBug;
@@ -74,46 +95,130 @@ else
     private List<Priority>? Priorities { get; set; }
     private List<Status>? Statuses { get; set; }
     private List<Category>? Categories { get; set; }
+    private List<AppUser>? Users { get; set; }
+
+    private string TitleWarning { get; set; } = string.Empty;
+    private string DescriptionWarning { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadDataAsync();
+        await LoadBugDataAsync();
         IsLoading = false;
     }
 
-    private async Task LoadDataAsync()
+    private async Task LoadBugDataAsync()
     {
-        Bug = await BugClient.GetByIdAsync(Id);
-        if (Bug != null)
+        var bug = await BugClient.GetByIdAsync(Id);
+        if (bug == null)
         {
-            EditBug = HelperMethods.CloneBug(Bug);
+            ToastService.ShowToast(BugToastMessages.BugNotFound);
+            NavigationService.NavigateToHomePage();
+            return;
         }
 
+        Bug = bug;
+        EditBug = HelperMethods.CloneBug(Bug);
+    }
+
+    private async Task LoadEditDataAsync()
+    {
         Priorities = await PriorityClient.GetAllAsync();
         Statuses = await StatusClient.GetAllAsync();
         Categories = await CategoryClient.GetAllAsync();
+        Users = await AppUserClient.GetAllAsync();
     }
 
-    private void ToggleEditMode() => IsEditMode = !IsEditMode;
+    private async Task ToggleEditMode()
+    {
+        if (!IsEditDataLoaded)
+        {
+            IsLoading = true;
+            await LoadEditDataAsync();
+            IsEditDataLoaded = true;
+            IsLoading = false;
+        }
+        IsEditMode = !IsEditMode;
+    }
 
     private async Task SaveChanges()
     {
-        if (EditBug != null)
+        if (EditBug == null)
         {
-            EditBug.LastEditorId = UserState.CurrentUser?.Id;
-            var response = await BugClient.UpdateAsync(EditBug);
-            ToastService.ShowToast(new ToastMessage(
-               message: "Bug updated succesfully",
-               level: ToastLevel.Success));
-
-            await LoadDataAsync();
-            IsEditMode = false;
+            ToastService.ShowToast(BugToastMessages.BugUpdateError);
+            return;
         }
+
+        TitleWarning = string.Empty;
+        DescriptionWarning = string.Empty;
+
+        bool isValid = true;
+
+        if (string.IsNullOrWhiteSpace(EditBug.Title))
+        {
+            TitleWarning = GeneralWarnings.FillRequiredField("Title");
+            isValid = false;
+        }
+
+        if (string.IsNullOrWhiteSpace(EditBug.Description))
+        {
+            DescriptionWarning = GeneralWarnings.FillRequiredField("Description");
+            isValid = false;
+        }
+
+        if (!isValid)
+        {
+            ToastService.ShowToast(GeneralToastMessages.FillRequiredFields);
+            return;
+        }
+
+        var bugWithSameTitle = await BugClient.GetByTitleAsync(EditBug.Title);
+        if (bugWithSameTitle != null && bugWithSameTitle.Id != EditBug.Id)
+        {
+            ToastService.ShowToast(BugToastMessages.BugWithTitleAlreadyExists(EditBug.Title));
+            return;
+        }
+
+        EditBug.LastEditorId = UserState.CurrentUser?.Id;
+        var updatedBug = await BugClient.UpdateAsync(EditBug);
+        ToastService.ShowToast(BugToastMessages.BugUpdated);
+
+        await LoadBugDataAsync();
+        IsEditMode = false;
     }
 
     private void CancelChanges()
     {
+        if (Bug == null)
+        {
+            ToastService.ShowToast(GeneralToastMessages.SomethingWentWrong);
+            return;
+        }
+
         EditBug = HelperMethods.CloneBug(Bug);
         IsEditMode = !IsEditMode;
+    }
+
+    private void DropdownSelectedChange<T>(T selected)
+    {
+        if (selected is Priority priority)
+        {
+            EditBug!.Priority = priority;
+            EditBug!.PriorityId = priority.Id;
+        }
+        else if (selected is Status status)
+        {
+            EditBug!.Status = status;
+            EditBug!.StatusId = status.Id;
+        }
+        else if (selected is Category category)
+        {
+            EditBug!.Category = category;
+            EditBug!.CategoryId = category.Id;
+        }
+        else if (selected is AppUser user)
+        {
+            EditBug!.Assignee = user;
+            EditBug!.AssigneeId = user.Id;
+        }
     }
 }
