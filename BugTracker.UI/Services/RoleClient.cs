@@ -5,13 +5,13 @@ namespace BugTracker.UI.Services
 {
     public class RoleClient : BaseApiClient<Role>
     {
-        private string _endpoint = "roles";
+        private const string _endpoint = "roles";
 
-        public RoleClient(HttpClient httpClient) : base(httpClient, "roles")
+        public RoleClient(HttpClient httpClient) : base(httpClient, _endpoint)
         {
         }
 
-        public async Task<List<AppUser>?> GetUsersWithRole(int id)
+        public async Task<List<AppUser>?> GetUsersWithRoleAsync(int id)
         {
             return await _httpClient.GetFromJsonAsync<List<AppUser>>($"api/{_endpoint}/{id}/users");
         }

@@ -1,7 +1,7 @@
 ﻿@page "/"
 
 <PageTitle>Index</PageTitle>
-<button class="btn btn-primary" @onclick="GoToBugCreation">Create Bug</button>
+<button class="btn btn-primary" @onclick="() => NavigationService.NavigateToCreateBugPage()">Create Bug</button>
 
 @if (IsLoading)
 {
@@ -20,7 +20,7 @@ else
 }
 
 @code {
-    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private NavigationService NavigationService { get; set; } = default!;
     [Inject] private UserState UserState { get; set; } = default!;
     [Inject] private BugClient BugsClient { get; set; } = default!;
 
@@ -32,8 +32,9 @@ else
     {
         if (!UserState.IsAuthenticated)
         {
-            NavigationManager.NavigateTo("/login");
+            NavigationService.NavigateToLoginPage();
         }
+
         await LoadDataAsync();
         IsLoading = false;
     }
@@ -41,10 +42,5 @@ else
     private async Task LoadDataAsync()
     {
         Bugs = await BugsClient.GetAllAsync();
-    }
-
-    private void GoToBugCreation()
-    {
-        NavigationManager.NavigateTo("/create-bug");
     }
 }

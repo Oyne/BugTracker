@@ -48,8 +48,8 @@ CREATE TABLE AppUser
     Email NVARCHAR(50) NOT NULL UNIQUE,
     UserName NVARCHAR(50) NOT NULL UNIQUE,
     Password NVARCHAR(500) NOT NULL,
-    FirstName NVARCHAR(25) NULL DEFAULT NULL,
-    LastName NVARCHAR(25) NULL DEFAULT NULL,
+    FirstName NVARCHAR(25) NOT NULL,
+    LastName NVARCHAR(25) NOT NULL,
     RoleId INT NULL DEFAULT NULL,
     FOREIGN KEY (RoleId) REFERENCES Role (Id) ON DELETE SET NULL
 )
@@ -58,7 +58,7 @@ GO
 CREATE TABLE Bug
 (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Title NVARCHAR(50) NOT NULL,
+    Title NVARCHAR(50) NOT NULL UNIQUE,
     Description NVARCHAR(255) NOT NULL,
     PriorityId INT NULL,
     StatusId INT NULL,
@@ -105,5 +105,7 @@ INSERT INTO Role
     (Name, Color)
 VALUES
     ('Admin', '#1f873a'),
-    ('User', '#9b6d17')
+    ('User', '#9b6d17'),
+    ('Developer', '#eb3645'),
+    ('Tester', '#904de2')
 GO

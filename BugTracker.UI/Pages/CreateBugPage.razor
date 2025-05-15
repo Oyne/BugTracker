@@ -8,47 +8,66 @@ else
 {
     <TextInputRow Title="Title"
                   Placeholder="Enter bug title"
+                  ValidationMessage="@TitleWarning"
                   @bind-Value="Title"></TextInputRow>
 
     <TextInputArea Title="Description"
                    Placeholder="Enter bug description"
+                   ValidationMessage="@DescriptionWarning"
                    @bind-Value="Description"></TextInputArea>
 
-    <DropDownList Title="Priority"
-                  Items="@Priorities"
-                  @bind-Selected="Priority"></DropDownList>
+    <ISelectableItemDropdown Title="Priority"
+                             Items="@(Priorities!)"
+                             @bind-Selected="Priority"></ISelectableItemDropdown>
 
-    <DropDownList Title="Status"
-                  Items="@Statuses"
-                  @bind-Selected="Status"></DropDownList>
+    <ISelectableItemDropdown Title="Status"
+                             Items="@(Statuses!)"
+                             @bind-Selected="Status"></ISelectableItemDropdown>
 
-    <DropDownList Title="Category"
-                  Items="@Categories"
-                  @bind-Selected="Category"></DropDownList>
+    <ISelectableItemDropdown Title="Category"
+                             Items="@(Categories!)"
+                             @bind-Selected="Category"></ISelectableItemDropdown>
+
+    <UserDropdown Title="Assignee"
+                  Users="@(Users!)"
+                  @bind-Selected="Assignee"></UserDropdown>
 
     <button @onclick="CreateBug">Create bug</button>
 }
 
 @code {
-    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
-    [Inject] private UserState UserState { get; set; } = default!;
-    [Inject] private BugClient BugClient { get; set; } = default!;
-    [Inject] private PriorityClient PriorityClient { get; set; } = default!;
-    [Inject] private StatusClient StatusClient { get; set; } = default!;
-    [Inject] private CategoryClient CategoryClient { get; set; } = default!;
-    [Inject] private ToastService ToastService { get; set; } = default!;
+    [Inject]
+    private NavigationService NavigationService { get; set; } = default!;
+    [Inject]
+    private UserState UserState { get; set; } = default!;
+    [Inject]
+    private BugClient BugClient { get; set; } = default!;
+    [Inject]
+    private PriorityClient PriorityClient { get; set; } = default!;
+    [Inject]
+    private StatusClient StatusClient { get; set; } = default!;
+    [Inject]
+    private CategoryClient CategoryClient { get; set; } = default!;
+    [Inject]
+    private AppUserClient AppUserClient { get; set; } = default!;
+    [Inject]
+    private ToastService ToastService { get; set; } = default!;
+
+    private bool IsLoading = true;
 
     private List<Priority>? Priorities { get; set; }
     private List<Status>? Statuses { get; set; }
     private List<Category>? Categories { get; set; }
+    private List<AppUser>? Users { get; set; }
 
     private string Title { get; set; } = string.Empty;
+    private string TitleWarning { get; set; } = string.Empty;
     private string Description { get; set; } = string.Empty;
+    private string DescriptionWarning { get; set; } = string.Empty;
     private Priority? Priority { get; set; }
     private Status? Status { get; set; }
     private Category? Category { get; set; }
-
-    private bool IsLoading = true;
+    private AppUser? Assignee { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,30 +80,61 @@ else
         Priorities = await PriorityClient.GetAllAsync();
         Statuses = await StatusClient.GetAllAsync();
         Categories = await CategoryClient.GetAllAsync();
+        Users = await AppUserClient.GetAllAsync();
     }
 
     private async Task CreateBug()
     {
-        Bug bug = new Bug
-            {
-                Title = this.Title,
-                Description = this.Description,
-                PriorityId = this.Priority?.Id,
-                StatusId = this.Status?.Id,
-                CategoryId = this.Category?.Id,
-                AuthorId = UserState.CurrentUser?.Id,
-                LastEditorId = UserState.CurrentUser?.Id
-            };
+        TitleWarning = string.Empty;
+        DescriptionWarning = string.Empty;
 
-        var response = await BugClient.CreateAsync(bug);
-        if (response.IsSuccessStatusCode)
+        bool isValid = true;
+
+        if (string.IsNullOrWhiteSpace(Title))
         {
-
-            ToastService.ShowToast(new ToastMessage(
-                message: "Bug created succesfully",
-                level: ToastLevel.Success));
-
-            NavigationManager.NavigateTo("/");
+            TitleWarning = GeneralWarnings.FillRequiredField("Title");
+            isValid = false;
         }
+
+        if (string.IsNullOrWhiteSpace(Description))
+        {
+            DescriptionWarning = GeneralWarnings.FillRequiredField("Description");
+            isValid = false;
+        }
+
+        if (!isValid)
+        {
+            ToastService.ShowToast(GeneralToastMessages.FillRequiredFields);
+            return;
+        }
+
+        var bugWithSameTitle = await BugClient.GetByTitleAsync(Title);
+        if (bugWithSameTitle != null)
+        {
+            ToastService.ShowToast(BugToastMessages.BugWithTitleAlreadyExists(Title));
+            return;
+        }
+
+        Bug bug = new Bug
+        {
+            Title = this.Title,
+            Description = this.Description,
+            PriorityId = this.Priority?.Id,
+            StatusId = this.Status?.Id,
+            CategoryId = this.Category?.Id,
+            AssigneeId = this.Assignee?.Id,
+            AuthorId = UserState.CurrentUser?.Id,
+            LastEditorId = UserState.CurrentUser?.Id
+        };
+
+        var createdBug = await BugClient.CreateAsync(bug);
+        if (createdBug != null)
+        {
+            ToastService.ShowToast(BugToastMessages.BugCreated(bug.Title));
+            NavigationService.NavigateToHomePage();
+            return;
+        }
+
+        ToastService.ShowToast(BugToastMessages.BugCreationError);
     }
 }

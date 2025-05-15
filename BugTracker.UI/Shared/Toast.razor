@@ -1,5 +1,10 @@
 ﻿<div class="toast @GetCssClass(ToastMessage.Level)">
-    @ToastMessage.Message
+    <div>
+        @ToastMessage.Level.ToString()
+    </div>
+    <div>
+        @ToastMessage.Message
+    </div>
 </div>
 
 @code {
@@ -7,9 +12,11 @@
 
     [Parameter] public ToastMessage ToastMessage { get; set; } = default!;
 
+    private int _autoDismissDelay = 5 * 1000; // 5 seconds
+
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(3000); // Auto-dismiss after 3 seconds
+        await Task.Delay(_autoDismissDelay);
         ToastService.RemoveToast(ToastMessage.Id);
     }
 
