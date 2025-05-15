@@ -15,8 +15,10 @@ builder.Services.AddScoped<BugTracker.UI.Services.CategoryClient>();
 builder.Services.AddScoped<BugTracker.UI.Services.AppUserClient>();
 builder.Services.AddScoped<BugTracker.UI.Services.RoleClient>();
 builder.Services.AddScoped<BugTracker.UI.Services.StorageService>();
-builder.Services.AddScoped<BugTracker.UI.Services.State.UserState>();
 builder.Services.AddSingleton<BugTracker.UI.Services.ToastService>();
+builder.Services.AddScoped<BugTracker.UI.Services.NavigationService>();
+builder.Services.AddScoped<BugTracker.UI.Services.State.UserState>();
+
 
 var host = builder.Build();
 
