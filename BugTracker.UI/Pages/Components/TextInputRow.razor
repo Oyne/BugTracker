@@ -1,10 +1,15 @@
 ﻿<div>
     <p>@Title</p>
     <div>
-        <input type="text"
+        <input type="@_inputType"
                placeholder="@Placeholder"
                value="@Value"
                @oninput="OnValueChanged" />
+        @if (IsPassword)
+        {
+            <i class="fa-solid @( _inputType == "password" ? "fa-eye" : "fa-eye-slash")"
+               @onclick="TogglePasswordVisibility" />
+        }
     </div>
     @if (!string.IsNullOrWhiteSpace(ValidationMessage))
     {
@@ -21,15 +26,27 @@
     [Parameter]
     public string? Placeholder { get; set; }
     [Parameter]
-    public string? Value { get; set; }
+    public bool IsPassword { get; set; } = false;
     [Parameter]
     public string? ValidationMessage { get; set; }
     [Parameter]
+    public string? Value { get; set; }
+    [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
+
+    private string _inputType = "text";
+
+    protected override void OnParametersSet()
+    {
+        _inputType = IsPassword ? "password" : "text";
+    }
 
     private async Task OnValueChanged(ChangeEventArgs e)
     {
         Value = e.Value?.ToString();
         await ValueChanged.InvokeAsync(Value);
     }
+
+    private void TogglePasswordVisibility() => _inputType = _inputType == "password" ? "text" : "password";
+
 }
