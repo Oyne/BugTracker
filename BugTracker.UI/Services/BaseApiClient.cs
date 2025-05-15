@@ -35,22 +35,32 @@ namespace BugTracker.UI.Services
             }
         }
 
-        public async Task<HttpResponseMessage> CreateAsync(T item)
+        public async Task<T?> CreateAsync(T item)
         {
             var response = await _httpClient.PostAsJsonAsync($"api/{_endpoint}", item);
-            return response;
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<T>();
+            }
+
+            return default;
         }
 
-        public async Task<HttpResponseMessage> UpdateAsync(T item)
+        public async Task<T?> UpdateAsync(T item)
         {
             var response = await _httpClient.PutAsJsonAsync($"api/{_endpoint}", item);
-            return response;
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<T>();
+            }
+
+            return default;
         }
 
-        public async Task<HttpResponseMessage> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var response = await _httpClient.DeleteAsync($"api/{_endpoint}/{id}");
-            return response;
+            return response.IsSuccessStatusCode;
         }
     }
 }
