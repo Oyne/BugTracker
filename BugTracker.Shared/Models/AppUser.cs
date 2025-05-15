@@ -23,10 +23,10 @@ namespace BugTracker.Shared.Models
         public required string Password { get; set; }
 
         [Column("FirstName")]
-        public string? FirstName { get; set; }
+        public required string FirstName { get; set; }
 
         [Column("LastName")]
-        public string? LastName { get; set; }
+        public required string LastName { get; set; }
 
         [Column("RoleId")]
         public int? RoleId { get; set; }
