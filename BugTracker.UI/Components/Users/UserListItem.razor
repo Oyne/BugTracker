@@ -1,0 +1,13 @@
+﻿<div>
+    <div>
+        @User.Id
+    </div>
+    <div>
+        @User.FirstName @User.LastName
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public required AppUser User { get; set; }
+}

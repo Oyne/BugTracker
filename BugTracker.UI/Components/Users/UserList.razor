@@ -1,0 +1,18 @@
+﻿@if (Users != null)
+{
+    @foreach (var user in Users)
+    {
+        <UserListItem User="user"></UserListItem>
+    }
+
+}
+else
+{
+    <div>No users found</div>
+
+}
+
+@code {
+    [Parameter]
+    public List<AppUser> Users { get; set; } = new List<AppUser>();
+}

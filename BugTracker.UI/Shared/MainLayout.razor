@@ -1,14 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
 <main>
-    <button @onclick="NavigateBack">Back</button>
+    <button @onclick="() => NavigationService.NavigateToHomePage()">Bugs</button>
+    <button @onclick="() => NavigationService.NavigateToUsersPage()">Users</button>
     <button @onclick="Logout">Logout</button>
     <ToastHost />
     @Body
 </main>
 
 @code {
-    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private NavigationService NavigationService { get; set; } = default!;
     [Inject] private UserState UserState { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
@@ -16,14 +17,9 @@
         await UserState.LoadUserAsync();
     }
 
-    private void NavigateBack()
-    {
-        NavigationManager.NavigateTo("/");
-    }
-
     private async Task Logout()
     {
         await UserState.ClearUserAsync();
-        NavigationManager.NavigateTo("/login");
+        NavigationService.NavigateToLoginPage();
     }
 }

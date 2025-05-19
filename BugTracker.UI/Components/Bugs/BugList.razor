@@ -1,0 +1,18 @@
+﻿@if (Bugs != null)
+{
+    @foreach (var bug in Bugs)
+    {
+        <BugListItem Bug="bug"></BugListItem>
+    }
+
+}
+else
+{
+    <div>No bugs found</div>
+
+}
+
+@code {
+    [Parameter]
+    public List<Bug> Bugs { get; set; } = new List<Bug>();
+}
