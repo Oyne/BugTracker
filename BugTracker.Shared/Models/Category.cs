@@ -13,11 +13,11 @@ namespace BugTracker.Shared.Models
 
         [Column("Name")]
         [Required]
-        public required string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [Column("Color")]
         [Required]
-        public required string Color { get; set; }
+        public string Color { get; set; } = string.Empty;
 
         public List<Bug> Bugs { get; set; } = new();
     }

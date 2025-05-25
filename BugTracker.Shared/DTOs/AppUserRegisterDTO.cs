@@ -1,37 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BugTracker.Shared.Models
+namespace BugTracker.Shared.DTOs
 {
-    [Table("AppUser")]
-    public class AppUser
+    public class AppUserRegisterDTO
     {
-        [Key]
-        [Column("Id")]
-        public int Id { get; set; }
-
-        [Column("Email")]
         [Required]
         public string Email { get; set; } = string.Empty;
-
-        [Column("Username")]
         [Required]
         public string UserName { get; set; } = string.Empty;
-
-        [Column("Password")]
         [Required]
         public string Password { get; set; } = string.Empty;
-
-        [Column("FirstName")]
+        [Required]
         public string FirstName { get; set; } = string.Empty;
-
-        [Column("LastName")]
+        [Required]
         public string LastName { get; set; } = string.Empty;
-
-        [Column("RoleId")]
         public int? RoleId { get; set; }
-
-        [ForeignKey("RoleId")]
-        public Role? Role { get; set; }
     }
 }

@@ -12,11 +12,11 @@ namespace BugTracker.Shared.Models
 
         [Column("Title")]
         [Required]
-        public required string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [Column("Description")]
         [Required]
-        public required string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         [Column("PriorityId")]
         public int? PriorityId { get; set; }
@@ -40,6 +40,7 @@ namespace BugTracker.Shared.Models
         public int? AuthorId { get; set; }
 
         [ForeignKey("AuthorId")]
+        [Required]
         public AppUser? Author { get; set; }
 
         [Column("LastEditorId")]
@@ -55,9 +56,11 @@ namespace BugTracker.Shared.Models
         public AppUser? Assignee { get; set; }
 
         [Column("CreationDateTime")]
+        [Required]
         public DateTime CreationDate { get; set; }
 
         [Column("LastEditDateTime")]
+        [Required]
         public DateTime LastEditDateTime { get; set; }
 
         [Column("LoggedTime")]

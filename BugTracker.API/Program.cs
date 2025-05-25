@@ -1,4 +1,5 @@
 using BugTracker.API.Data;
+using BugTracker.API.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,8 @@ namespace BugTracker.API
                 Console.WriteLine($"Database connection failed: {ex.Message}");
                 throw; // Optional: rethrow to stop startup if DB is critical
             }
+
+            builder.Services.AddScoped<PasswordService>();
 
             builder.Services.AddCors(options =>
             {
@@ -55,6 +58,13 @@ namespace BugTracker.API
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+            }
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var passwordService = scope.ServiceProvider.GetRequiredService<PasswordService>();
+                DbInitializer.Initialize(db, passwordService);
             }
 
             app.UseHttpsRedirection();
