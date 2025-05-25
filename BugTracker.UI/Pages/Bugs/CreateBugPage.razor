@@ -9,30 +9,30 @@ else
     <TextInputRow Title="Title"
                   Placeholder="Enter bug title"
                   ValidationMessage="@TitleWarning"
-                  @bind-Value="BugCreate.Title"></TextInputRow>
+                  @bind-Value="CreateBug.Title"></TextInputRow>
 
     <TextInputArea Title="Description"
                    Placeholder="Enter bug description"
                    ValidationMessage="@DescriptionWarning"
-                   @bind-Value="BugCreate.Description"></TextInputArea>
+                   @bind-Value="CreateBug.Description"></TextInputArea>
 
     <ISelectableItemDropdown Title="Priority"
-                             Items="Priorities"
-                             @bind-Selected="BugCreate.PriorityId"></ISelectableItemDropdown>
+                             Items="@Priorities"
+                             @bind-SelectedId="CreateBug.PriorityId"></ISelectableItemDropdown>
 
     <ISelectableItemDropdown Title="Status"
-                             Items="@(Statuses!)"
-                             @bind-Selected="Status"></ISelectableItemDropdown>
+                             Items="@Statuses"
+                             @bind-SelectedId="CreateBug.StatusId"></ISelectableItemDropdown>
 
     <ISelectableItemDropdown Title="Category"
-                             Items="@(Categories!)"
-                             @bind-Selected="Category"></ISelectableItemDropdown>
+                             Items="@Categories"
+                             @bind-SelectedId="CreateBug.CategoryId"></ISelectableItemDropdown>
 
     <UserDropdown Title="Assignee"
-                  Users="@(Users!)"
-                  @bind-Selected="Assignee"></UserDropdown>
+                  Users="Users"
+                  @bind-SelectedId="CreateBug.AssigneeId"></UserDropdown>
 
-    <button @onclick="CreateBug">Create bug</button>
+    <button @onclick="Create">Create bug</button>
 }
 
 @code {
@@ -50,9 +50,9 @@ else
     private List<PriorityDTO> Priorities { get; set; } = new();
     private List<StatusDTO> Statuses { get; set; } = new();
     private List<CategoryDTO> Categories { get; set; } = new();
-    private List<AppUserDTO> Users { get; set; } = new(); 
+    private List<AppUserDTO> Users { get; set; } = new();
 
-    private BugCreateDTO BugCreate { get; } = new ();
+    private BugCreateDTO CreateBug { get; } = new();
     private string TitleWarning { get; set; } = string.Empty;
     private string DescriptionWarning { get; set; } = string.Empty;
 
@@ -74,20 +74,20 @@ else
         Users = usersResponse.Data;
     }
 
-    private async Task CreateBug()
+    private async Task Create()
     {
         TitleWarning = string.Empty;
         DescriptionWarning = string.Empty;
 
         bool isValid = true;
 
-        if (string.IsNullOrWhiteSpace(Title))
+        if (string.IsNullOrWhiteSpace(CreateBug.Title))
         {
             TitleWarning = GeneralWarnings.FillRequiredField("Title");
             isValid = false;
         }
 
-        if (string.IsNullOrWhiteSpace(Description))
+        if (string.IsNullOrWhiteSpace(CreateBug.Description))
         {
             DescriptionWarning = GeneralWarnings.FillRequiredField("Description");
             isValid = false;
@@ -99,33 +99,17 @@ else
             return;
         }
 
-        var bugWithSameTitle = await BugsClient.GetByTitleAsync(Title);
-        if (bugWithSameTitle != null)
+        var response = await BugsClient.CreateBugAsync(CreateBug);
+        if (!response.Success)
         {
-            ToastService.ShowToast(BugToastMessages.BugWithTitleAlreadyExists(Title));
+            ToastService.ShowToast(new ToastMessage(
+                title: response.Error!,
+                message: response.Message ?? GeneralWarnings.SomethingWentWrong,
+            level: ToastLevel.Error));
             return;
         }
 
-        Bug bug = new Bug
-        {
-            Title = this.Title,
-            Description = this.Description,
-            PriorityId = this.Priority?.Id,
-            StatusId = this.Status?.Id,
-            CategoryId = this.Category?.Id,
-            AssigneeId = this.Assignee?.Id,
-            AuthorId = UserState.CurrentUser?.Id,
-            LastEditorId = UserState.CurrentUser?.Id
-        };
-
-        var createdBug = await BugsClient.CreateAsync(bug);
-        if (createdBug != null)
-        {
-            ToastService.ShowToast(BugToastMessages.BugCreated(bug.Title));
-            NavigationService.NavigateToHomePage();
-            return;
-        }
-
-        ToastService.ShowToast(BugToastMessages.BugCreationError);
+        ToastService.ShowToast(BugToastMessages.BugCreated(response.Data.Title));
+        NavigationService.NavigateToHomePage();
     }
 }

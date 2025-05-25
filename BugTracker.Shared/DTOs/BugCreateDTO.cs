@@ -11,8 +11,10 @@ namespace BugTracker.Shared.DTOs
         public int? PriorityId { get; set; }
         public int? StatusId { get; set; }
         public int? CategoryId { get; set; }
-        public int? AuthorId { get; set; }
-        public int? LastEditorId { get; set; }
+        [Required]
+        public int AuthorId { get; set; }
+        [Required]
+        public int LastEditorId { get; set; }
         public int? AssigneeId { get; set; }
     }
 }

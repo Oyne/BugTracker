@@ -101,7 +101,7 @@
 
         var appUser = loginResponse.Data!;
         await UserState.SetUser(appUser, RememberMe);
-        ToastService.ShowToast(UserToastMessages.UserLoggedIn(appUser.UserName));
+        ToastService.ShowToast(UserToastMessages.UserLoggedIn(appUser.FullName));
         NavigationService.NavigateToHomePage();
         return;
     }
@@ -165,7 +165,7 @@
 
         var appUser = registerResponse.Data!;
         await UserState.SetUser(appUser, RememberMe);
-        ToastService.ShowToast(UserToastMessages.UserRegistered(appUser.UserName));
+        ToastService.ShowToast(UserToastMessages.UserRegistered(appUser.FullName));
         NavigationService.NavigateToHomePage();
         return;
     }

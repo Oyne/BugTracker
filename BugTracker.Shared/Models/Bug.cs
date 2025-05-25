@@ -37,14 +37,14 @@ namespace BugTracker.Shared.Models
         public Category? Category { get; set; }
 
         [Column("AuthorId")]
-        public int? AuthorId { get; set; }
+        public int AuthorId { get; set; }
 
         [ForeignKey("AuthorId")]
         [Required]
         public AppUser? Author { get; set; }
 
         [Column("LastEditorId")]
-        public int? LastEditorId { get; set; }
+        public int LastEditorId { get; set; }
 
         [ForeignKey("LastEditorId")]
         public AppUser? LastEditor { get; set; }
@@ -57,13 +57,13 @@ namespace BugTracker.Shared.Models
 
         [Column("CreationDateTime")]
         [Required]
-        public DateTime CreationDate { get; set; }
+        public DateTime CreationDate { get; set; } = DateTime.UtcNow;
 
         [Column("LastEditDateTime")]
         [Required]
-        public DateTime LastEditDateTime { get; set; }
+        public DateTime LastEditDateTime { get; set; } = DateTime.UtcNow;
 
         [Column("LoggedTime")]
-        public TimeSpan? LoggedTime { get; set; }
+        public TimeSpan LoggedTime { get; set; } = TimeSpan.Zero;
     }
 }

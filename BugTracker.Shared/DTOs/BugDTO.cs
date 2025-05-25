@@ -13,13 +13,16 @@ namespace BugTracker.Shared.DTOs
         public PriorityDTO? Priority { get; set; }
         public StatusDTO? Status { get; set; }
         public CategoryDTO? Category { get; set; }
-        public AppUserSummaryDTO? Author { get; set; }
-        public AppUserSummaryDTO? LastEditor { get; set; }
+        [Required]
+        public AppUserSummaryDTO Author { get; set; } = new();
+        [Required]
+        public AppUserSummaryDTO LastEditor { get; set; } = new();
         public AppUserSummaryDTO? Assignee { get; set; }
         [Required]
         public DateTime CreationDate { get; set; }
         [Required]
         public DateTime LastEditDateTime { get; set; }
-        public TimeSpan? LoggedTime { get; set; }
+        [Required]
+        public TimeSpan LoggedTime { get; set; }
     }
 }

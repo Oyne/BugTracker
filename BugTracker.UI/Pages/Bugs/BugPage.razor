@@ -17,6 +17,7 @@ else
             <pre>Descirption: @Bug.Description</pre>
             <div>Creation date: @Bug.CreationDate.ToLocalTime().ToString("f")</div>
             <div>Last edit date: @Bug.LastEditDateTime.ToLocalTime().ToString("f")</div>
+            <div>Logged time: @Bug.LoggedTime.ToString()</div>
             <div>Priority: @Bug.Priority?.Name</div>
             <div>Status: @Bug.Status?.Name</div>
             <div>Category: @Bug.Category?.Name</div>
@@ -30,33 +31,29 @@ else
             <TextInputRow Title="Name"
                           Placeholder="Enter bug title"
                           ValidationMessage="@TitleWarning"
-                          @bind-Value="EditBug!.Title"></TextInputRow>
+                          @bind-Value="UpdateBug.Title"></TextInputRow>
 
             <TextInputArea Title="Description"
                            Placeholder="Enter bug description"
                            ValidationMessage="@DescriptionWarning"
-                           @bind-Value="EditBug.Description"></TextInputArea>
+                           @bind-Value="UpdateBug.Description"></TextInputArea>
 
 
             <ISelectableItemDropdown Title="Priority"
-                                     Items="@(Priorities!)"
-                                     Selected="EditBug.Priority"
-                                     SelectedChanged="(Priority p) => DropdownSelectedChange(p)"></ISelectableItemDropdown>
+                                     Items="@Priorities"
+                                     @bind-SelectedId="UpdateBug.PriorityId"></ISelectableItemDropdown>
 
             <ISelectableItemDropdown Title="Status"
-                                     Items="@(Statuses!)"
-                                     Selected="EditBug.Status"
-                                     SelectedChanged="(Status s) => DropdownSelectedChange(s)"></ISelectableItemDropdown>
+                                     Items="@Statuses"
+                                     @bind-SelectedId="UpdateBug.StatusId"></ISelectableItemDropdown>
 
             <ISelectableItemDropdown Title="Category"
-                                     Items="@(Categories!)"
-                                     Selected="EditBug.Category"
-                                     SelectedChanged="(Category c) => DropdownSelectedChange(c)"></ISelectableItemDropdown>
+                                     Items="@Categories"
+                                     @bind-SelectedId="UpdateBug.CategoryId"></ISelectableItemDropdown>
 
             <UserDropdown Title="Assignee"
-                          Users="@(Users!)"
-                          Selected="EditBug.Assignee"
-                          SelectedChanged="(AppUser u) => DropdownSelectedChange(u)"></UserDropdown>
+                          Users="Users"
+                          @bind-SelectedId="UpdateBug.AssigneeId"></UserDropdown>
 
             <button @onclick="SaveChanges"> Save </button>
             <button @onclick="CancelChanges"> Cancel </button>
@@ -81,13 +78,13 @@ else
     private bool IsEditMode { get; set; } = false;
     private bool IsEditDataLoaded { get; set; } = false;
 
-    private Bug Bug = default!;
-    private Bug EditBug = default!;
+    private BugDTO Bug = default!;
+    private BugUpdateDTO UpdateBug = default!;
 
-    private List<Priority> Priorities { get; set; } = new();
-    private List<Status> Statuses { get; set; } = new();
-    private List<Category> Categories { get; set; } = new();
-    private List<AppUser> Users { get; set; } = new();
+    private List<PriorityDTO> Priorities { get; set; } = new();
+    private List<StatusDTO> Statuses { get; set; } = new();
+    private List<CategoryDTO> Categories { get; set; } = new();
+    private List<AppUserDTO> Users { get; set; } = new();
 
     private string TitleWarning { get; set; } = string.Empty;
     private string DescriptionWarning { get; set; } = string.Empty;
@@ -100,24 +97,28 @@ else
 
     private async Task LoadBugDataAsync()
     {
-        var bug = await BugsClient.GetByIdAsync(Id);
-        if (bug == null)
+        var response = await BugsClient.GetBugByIdAsync(Id);
+        Bug = response.Data;
+        if (Bug == null)
         {
             ToastService.ShowToast(BugToastMessages.BugNotFound);
             NavigationService.NavigateToHomePage();
             return;
         }
-
-        Bug = bug;
-        EditBug = HelperMethods.CloneBug(Bug);
+        UpdateBug = Bug.CopyToUpdateDTO();
     }
 
     private async Task LoadEditDataAsync()
     {
-        Priorities = await PrioritiesClient.GetAllAsync();
-        Statuses = await StatusesClient.GetAllAsync();
-        Categories = await CategoriesClient.GetAllAsync();
-        Users = await AppUsersClient.GetAllAsync();
+        UpdateBug = Bug.CopyToUpdateDTO();
+        var prioritiesResponse = await PrioritiesClient.GetAllPrioritiesAsync();
+        Priorities = prioritiesResponse.Data;
+        var statusesResponse = await StatusesClient.GetAllStatusesAsync();
+        Statuses = statusesResponse.Data;
+        var categoriesResponse = await CategoriesClient.GetAllCategoriesAsync();
+        Categories = categoriesResponse.Data;
+        var usersResponse = await AppUsersClient.GetAllUsersAsync();
+        Users = usersResponse.Data;
     }
 
     private async Task ToggleEditMode()
@@ -134,24 +135,18 @@ else
 
     private async Task SaveChanges()
     {
-        if (EditBug == null)
-        {
-            ToastService.ShowToast(BugToastMessages.BugUpdateError);
-            return;
-        }
-
         TitleWarning = string.Empty;
         DescriptionWarning = string.Empty;
 
         bool isValid = true;
 
-        if (string.IsNullOrWhiteSpace(EditBug.Title))
+        if (string.IsNullOrWhiteSpace(UpdateBug.Title))
         {
             TitleWarning = GeneralWarnings.FillRequiredField("Title");
             isValid = false;
         }
 
-        if (string.IsNullOrWhiteSpace(EditBug.Description))
+        if (string.IsNullOrWhiteSpace(UpdateBug.Description))
         {
             DescriptionWarning = GeneralWarnings.FillRequiredField("Description");
             isValid = false;
@@ -163,59 +158,25 @@ else
             return;
         }
 
-        var bugWithSameTitle = await BugsClient.GetByTitleAsync(EditBug.Title);
-        if (bugWithSameTitle != null && bugWithSameTitle.Id != EditBug.Id)
+        UpdateBug.LastEditorId = UserState.CurrentUser!.Id;
+        var response = await BugsClient.UpdateBugAsync(UpdateBug);
+        if (!response.Success)
         {
-            ToastService.ShowToast(BugToastMessages.BugWithTitleAlreadyExists(EditBug.Title));
+            ToastService.ShowToast(new ToastMessage(
+                title: response.Error!,
+                message: response.Message ?? GeneralWarnings.SomethingWentWrong,
+            level: ToastLevel.Error));
             return;
         }
-
-        EditBug.LastEditorId = UserState.CurrentUser?.Id;
-        var isBugUpdated = await BugsClient.UpdateAsync(EditBug);
-        if(!isBugUpdated)
-        {
-            ToastService.ShowToast(BugToastMessages.BugUpdateError);
-            return;
-        };
+        Bug = response.Data;
 
         ToastService.ShowToast(BugToastMessages.BugUpdated);
-        await LoadBugDataAsync();
         IsEditMode = false;
     }
 
     private void CancelChanges()
     {
-        if (Bug == null)
-        {
-            ToastService.ShowToast(GeneralToastMessages.SomethingWentWrong);
-            return;
-        }
-
-        EditBug = HelperMethods.CloneBug(Bug);
+        UpdateBug = Bug.CopyToUpdateDTO();
         IsEditMode = !IsEditMode;
-    }
-
-    private void DropdownSelectedChange<T>(T selected)
-    {
-        if (selected is Priority priority)
-        {
-            EditBug!.Priority = priority;
-            EditBug!.PriorityId = priority.Id;
-        }
-        else if (selected is Status status)
-        {
-            EditBug!.Status = status;
-            EditBug!.StatusId = status.Id;
-        }
-        else if (selected is Category category)
-        {
-            EditBug!.Category = category;
-            EditBug!.CategoryId = category.Id;
-        }
-        else if (selected is AppUser user)
-        {
-            EditBug!.Assignee = user;
-            EditBug!.AssigneeId = user.Id;
-        }
     }
 }

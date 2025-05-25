@@ -173,7 +173,14 @@ namespace BugTracker.API.Controllers
                     };
                 }
 
-                var bugToUpdate = await _context.Bugs.FirstOrDefaultAsync(b => b.Id == bugUpdateDTO.Id);
+                var bugToUpdate = await _context.Bugs
+                     .Include(b => b.Author)
+                     .Include(b => b.LastEditor)
+                     .Include(b => b.Assignee)
+                     .Include(b => b.Priority)
+                     .Include(b => b.Status)
+                     .Include(b => b.Category)
+                     .FirstOrDefaultAsync(b => b.Id == bugUpdateDTO.Id);
                 if (bugToUpdate == null)
                 {
                     return new ApiResponse<BugDTO>
@@ -185,7 +192,15 @@ namespace BugTracker.API.Controllers
                     };
                 }
 
-                bugToUpdate = bugUpdateDTO.ToEntity();
+                bugToUpdate.Title = bugUpdateDTO.Title;
+                bugToUpdate.Description = bugUpdateDTO.Description;
+                bugToUpdate.PriorityId = bugUpdateDTO.PriorityId;
+                bugToUpdate.StatusId = bugUpdateDTO.StatusId;
+                bugToUpdate.CategoryId = bugUpdateDTO.CategoryId;
+                bugToUpdate.LastEditorId = bugUpdateDTO.LastEditorId;
+                bugToUpdate.AssigneeId = bugUpdateDTO.AssigneeId;
+                bugToUpdate.LastEditDateTime = DateTime.UtcNow;
+                bugToUpdate.LoggedTime = bugUpdateDTO.LoggedTime;
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();

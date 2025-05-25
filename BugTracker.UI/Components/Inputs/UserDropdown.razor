@@ -1,6 +1,6 @@
-﻿@if (Selected != null)
+﻿@if (SelectedUser != null)
 {
-    <button @onclick="Toggle">@Selected.FirstName @Selected.LastName</button>
+    <button @onclick="Toggle">@SelectedUser.FullName</button>
 }
 else
 {
@@ -12,8 +12,8 @@ else
     @foreach (var user in Users)
     {
         <UserDropdownItem User="user"
-                          IsSelected="Equals(user, Selected)"
-                          OnSelected="() => Select(user)" />
+                          IsSelected="Equals(user, SelectedUser)"
+                          OnSelected="() => Select(user.Id)" />
     }
 }
 
@@ -22,29 +22,31 @@ else
     public required string Title { get; set; }
 
     [Parameter]
-    public required List<AppUser> Users { get; set; }
+    public required List<AppUserDTO> Users { get; set; }
 
     [Parameter]
-    public AppUser? Selected { get; set; }
+    public int? SelectedId { get; set; }
 
-    [Parameter] 
-    public EventCallback<AppUser?> SelectedChanged { get; set; }
+    public AppUserDTO? SelectedUser => Users.FirstOrDefault(x => x.Id == SelectedId);
+
+    [Parameter]
+    public EventCallback<int?> SelectedIdChanged { get; set; }
 
     private bool IsToggle { get; set; } = false;
 
     private void Toggle() => IsToggle = !IsToggle;
 
-    private async Task Select(AppUser user)
+    private async Task Select(int id)
     {
         IsToggle = false;
 
-        if (Equals(user, Selected))
+        if (Equals(id, SelectedId))
         {
-            await SelectedChanged.InvokeAsync(null); 
+            await SelectedIdChanged.InvokeAsync(null);
         }
         else
         {
-            await SelectedChanged.InvokeAsync(user);
+            await SelectedIdChanged.InvokeAsync(id);
         }
     }
 }

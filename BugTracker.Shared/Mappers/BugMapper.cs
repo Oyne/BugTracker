@@ -29,7 +29,6 @@ namespace BugTracker.Shared.Mappers
                 PriorityId = bugUpdateDTO.PriorityId,
                 StatusId = bugUpdateDTO.StatusId,
                 CategoryId = bugUpdateDTO.CategoryId,
-                AuthorId = bugUpdateDTO.AuthorId,
                 LastEditorId = bugUpdateDTO.LastEditorId,
                 AssigneeId = bugUpdateDTO.AssigneeId,
                 LoggedTime = bugUpdateDTO.LoggedTime
@@ -46,11 +45,27 @@ namespace BugTracker.Shared.Mappers
                 Priority = bug.Priority?.ToDTO(),
                 Status = bug.Status?.ToDTO(),
                 Category = bug.Category?.ToDTO(),
-                Author = bug.Author?.ToSummaryDTO(),
-                LastEditor = bug.LastEditor?.ToSummaryDTO(),
+                Author = bug.Author!.ToSummaryDTO(),
+                LastEditor = bug.LastEditor!.ToSummaryDTO(),
                 Assignee = bug.Assignee?.ToSummaryDTO(),
                 CreationDate = bug.CreationDate,
                 LastEditDateTime = bug.LastEditDateTime,
+                LoggedTime = bug.LoggedTime
+            };
+        }
+
+        public static BugUpdateDTO CopyToUpdateDTO(this BugDTO bug)
+        {
+            return new BugUpdateDTO
+            {
+                Id = bug.Id,
+                Title = bug.Title,
+                Description = bug.Description,
+                PriorityId = bug.Priority?.Id,
+                StatusId = bug.Status?.Id,
+                CategoryId = bug.Category?.Id,
+                LastEditorId = bug.LastEditor.Id,
+                AssigneeId = bug.Assignee?.Id,
                 LoggedTime = bug.LoggedTime
             };
         }

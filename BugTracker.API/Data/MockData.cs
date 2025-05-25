@@ -33,8 +33,11 @@ namespace BugTracker.API.Data
                 PriorityId = 1,
                 StatusId = 1,
                 CategoryId = 1,
+                AuthorId = 1,
+                LastEditorId = 1,
                 CreationDate = DateTime.Now,
-                LastEditDateTime = DateTime.Now
+                LastEditDateTime = DateTime.Now,
+                LoggedTime = TimeSpan.Zero,
             },
             new Bug
             {
@@ -43,8 +46,11 @@ namespace BugTracker.API.Data
                 PriorityId = 1,
                 StatusId = 1,
                 CategoryId = 1,
+                AuthorId = 1,
+                LastEditorId = 1,
                 CreationDate = DateTime.Now,
-                LastEditDateTime = DateTime.Now
+                LastEditDateTime = DateTime.Now,
+                LoggedTime = TimeSpan.Zero,
             },
             new Bug
             {
@@ -53,6 +59,8 @@ namespace BugTracker.API.Data
                 PriorityId = 1,
                 StatusId = 1,
                 CategoryId = 1,
+                AuthorId = 1,
+                LastEditorId = 1,
                 CreationDate = DateTime.Now,
                 LastEditDateTime = DateTime.Now
             },
@@ -63,6 +71,8 @@ namespace BugTracker.API.Data
                 PriorityId = 1,
                 StatusId = 1,
                 CategoryId = 1,
+                AuthorId = 1,
+                LastEditorId = 1,
                 CreationDate = DateTime.Now,
                 LastEditDateTime = DateTime.Now
             }
