@@ -4,15 +4,13 @@
     {
         <BugListItem Bug="bug"></BugListItem>
     }
-
 }
 else
 {
     <div>No bugs found</div>
-
 }
 
 @code {
     [Parameter]
-    public List<Bug> Bugs { get; set; } = new List<Bug>();
+    public List<BugDTO> Bugs { get; set; } = new List<BugDTO>();
 }

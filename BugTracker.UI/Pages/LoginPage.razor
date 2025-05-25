@@ -4,12 +4,12 @@
     <TextInputRow Title="Email/Username"
                   Placeholder="Enter email/username"
                   ValidationMessage="@EmailUserNameWarning"
-                  @bind-Value="EmailUsername"></TextInputRow>
+                  @bind-Value="UserLogin.EmailUserName"></TextInputRow>
     <TextInputRow Title="Password"
                   Placeholder="Enter password"
                   IsPassword="true"
-                  ValidationMessage="@LoginPasswordWarning"
-                  @bind-Value="LoginPassword"></TextInputRow>
+                  ValidationMessage="@PasswordWarning"
+                  @bind-Value="UserLogin.Password"></TextInputRow>
     <div>@InvalidLoginDataWarning</div>
     <button @onclick="Login">Login</button>
     <button @onclick="ToggleRegisterMode">Register</button>
@@ -22,24 +22,24 @@
     <TextInputRow Title="Email"
                   Placeholder="Enter email"
                   ValidationMessage="@EmailWarning"
-                  @bind-Value="Email"></TextInputRow>
+                  @bind-Value="UserRegister.Email"></TextInputRow>
     <TextInputRow Title="Username"
                   Placeholder="Username"
                   ValidationMessage="@UserNameWarning"
-                  @bind-Value="UserName"></TextInputRow>
+                  @bind-Value="UserRegister.UserName"></TextInputRow>
     <TextInputRow Title="Password"
                   Placeholder="Enter password"
                   IsPassword="true"
-                  ValidationMessage="@RegisterPasswordWarning"
-                  @bind-Value="RegisterPassword"></TextInputRow>
+                  ValidationMessage="@PasswordWarning"
+                  @bind-Value="UserRegister.Password"></TextInputRow>
     <TextInputRow Title="First name"
                   Placeholder="Enter first name"
-                  ValidationMessage="@FirtsNameWarning"
-                  @bind-Value="FirstName"></TextInputRow>
+                  ValidationMessage="@FirstNameWarning"
+                  @bind-Value="UserRegister.FirstName"></TextInputRow>
     <TextInputRow Title="Last name"
                   Placeholder="Enter last name"
                   ValidationMessage="@LastNameWarning"
-                  @bind-Value="LastName"></TextInputRow>
+                  @bind-Value="UserRegister.LastName"></TextInputRow>
     <button @onclick="Register">Register</button>
     <button @onclick="ToggleRegisterMode">Already have an account</button>
 </div>
@@ -47,16 +47,11 @@
 @code {
     [Inject] private NavigationService NavigationService { get; set; } = default!;
     [Inject] private UserState UserState { get; set; } = default!;
-    [Inject] private AppUserClient AppUsersClient { get; set; } = default!;
+    [Inject] private AppUsersClient AppUsersClient { get; set; } = default!;
     [Inject] private ToastService ToastService { get; set; } = default!;
 
-    private string? EmailUsername { get; set; }
-    private string? LoginPassword { get; set; }
-    private string? Email { get; set; }
-    private string? UserName { get; set; }
-    private string? RegisterPassword { get; set; }
-    private string? FirstName { get; set; }
-    private string? LastName { get; set; }
+    private AppUserLoginDTO UserLogin { get; set; } = new ();
+    private AppUserRegisterDTO UserRegister { get; set; } = new ();
 
     private bool RememberMe { get; set; } = false;
     private bool IsRegisterMode { get; set; } = false;
@@ -64,9 +59,8 @@
     private string EmailUserNameWarning { get; set; } = string.Empty;
     private string EmailWarning { get; set; } = string.Empty;
     private string UserNameWarning { get; set; } = string.Empty;
-    private string LoginPasswordWarning { get; set; } = string.Empty;
-    private string RegisterPasswordWarning { get; set; } = string.Empty;
-    private string FirtsNameWarning { get; set; } = string.Empty;
+    private string PasswordWarning { get; set; } = string.Empty;
+    private string FirstNameWarning { get; set; } = string.Empty;
     private string LastNameWarning { get; set; } = string.Empty;
     private string InvalidLoginDataWarning { get; set; } = string.Empty;
 
@@ -75,15 +69,15 @@
         ClearLoginWarnings();
         bool isValid = true;
 
-        if (string.IsNullOrWhiteSpace(EmailUsername))
+        if (string.IsNullOrWhiteSpace(UserLogin.EmailUserName))
         {
             EmailUserNameWarning = GeneralWarnings.FillRequiredField("Email/Username");
             isValid = false;
         }
 
-        if (string.IsNullOrWhiteSpace(LoginPassword))
+        if (string.IsNullOrWhiteSpace(UserLogin.Password))
         {
-            LoginPasswordWarning = GeneralWarnings.FillRequiredField("Password");
+            PasswordWarning = GeneralWarnings.FillRequiredField("Password");
             isValid = false;
         }
 
@@ -93,25 +87,23 @@
             return;
         }
 
-        var user = await AppUsersClient.GetUserByEmailAsync(EmailUsername!)
-        ?? await AppUsersClient.GetUserByUsernameAsync(EmailUsername!);
-        if (user == null)
+        var loginResponse = await AppUsersClient.Login(UserLogin);
+
+        if (!loginResponse.Success)
         {
             InvalidLoginDataWarning = GeneralWarnings.InvalidLoginData;
-            ToastService.ShowToast(UserToastMessages.UserNotFound);
+            ToastService.ShowToast(new ToastMessage(
+                title: loginResponse.Error!,
+                message: loginResponse.Message ?? GeneralWarnings.SomethingWentWrong,
+                level: ToastLevel.Error));
             return;
         }
 
-        if (!string.IsNullOrWhiteSpace(LoginPassword) && user.Password == PasswordMethods.HashPassword(LoginPassword))
-        {
-            await UserState.SetUser(user, RememberMe);
-            ToastService.ShowToast(UserToastMessages.UserLoggedIn(user.UserName));
-            NavigationService.NavigateToHomePage();
-            return;
-        }
-
-        InvalidLoginDataWarning = GeneralWarnings.InvalidLoginData;
-        ToastService.ShowToast(UserToastMessages.InvalidLoginData);
+        var appUser = loginResponse.Data!;
+        await UserState.SetUser(appUser, RememberMe);
+        ToastService.ShowToast(UserToastMessages.UserLoggedIn(appUser.UserName));
+        NavigationService.NavigateToHomePage();
+        return;
     }
 
     private async Task Register()
@@ -119,36 +111,36 @@
         ClearRegisterWarnings();
         bool isValid = true;
 
-        if (string.IsNullOrWhiteSpace(Email))
+        if (string.IsNullOrWhiteSpace(UserRegister.Email))
         {
             EmailWarning = GeneralWarnings.FillRequiredField("Email");
             isValid = false;
         }
-        else if (!EmailMethods.IsValid(Email!))
+        else if (!EmailMethods.IsValid(UserRegister.Email))
         {
             EmailWarning = GeneralWarnings.InvalidInput;
             isValid = false;
         }
 
-        if (string.IsNullOrWhiteSpace(UserName))
+        if (string.IsNullOrWhiteSpace(UserRegister.UserName))
         {
             UserNameWarning = GeneralWarnings.FillRequiredField("Username");
             isValid = false;
         }
 
-        if (string.IsNullOrWhiteSpace(RegisterPassword))
+        if (string.IsNullOrWhiteSpace(UserRegister.Password))
         {
-            RegisterPasswordWarning = GeneralWarnings.FillRequiredField("Password");
+            PasswordWarning = GeneralWarnings.FillRequiredField("Password");
             isValid = false;
         }
 
-        if (string.IsNullOrWhiteSpace(FirstName))
+        if (string.IsNullOrWhiteSpace(UserRegister.FirstName))
         {
-            FirtsNameWarning = GeneralWarnings.FillRequiredField("First name");
+            FirstNameWarning = GeneralWarnings.FillRequiredField("First name");
             isValid = false;
         }
 
-        if (string.IsNullOrWhiteSpace(LastName))
+        if (string.IsNullOrWhiteSpace(UserRegister.LastName))
         {
             LastNameWarning = GeneralWarnings.FillRequiredField("Last name");
             isValid = false;
@@ -160,44 +152,22 @@
             return;
         }
 
-        var existingUserByEmail = await AppUsersClient.GetUserByEmailAsync(Email!);
-        if (existingUserByEmail != null)
+        var userCount = await AppUsersClient.GetUserCountAsync();
+        var registerResponse = await AppUsersClient.CreateUserAsync(UserRegister);
+        if (!registerResponse.Success)
         {
-            ToastService.ShowToast(UserToastMessages.UserWithEmailAlreadyExists(Email!));
+            ToastService.ShowToast(new ToastMessage(
+                title: registerResponse.Error!,
+                message: registerResponse.Message ?? GeneralWarnings.SomethingWentWrong,
+            level: ToastLevel.Error));
             return;
         }
 
-        var existingUserByUsername = await AppUsersClient.GetUserByUsernameAsync(UserName!);
-        if (existingUserByUsername != null)
-        {
-            ToastService.ShowToast(UserToastMessages.UserWithUserNameAlreadyExists(UserName!));
-            return;
-        }
-
-        var existingUsers = await AppUsersClient.GetAllAsync();
-        bool isFirstUser = !existingUsers.Any();
-        int adminRoleId = 1;
-        int userRoleId = 2;
-        var newUser = new AppUser
-        {
-            Email = Email!,
-            UserName = UserName!,
-            Password = PasswordMethods.HashPassword(RegisterPassword!),
-            FirstName = FirstName!,
-            LastName = LastName!,
-            RoleId = isFirstUser ? adminRoleId : userRoleId
-        };
-
-        var createdUser = await AppUsersClient.CreateAsync(newUser);
-        if (createdUser != null)
-        {
-            await UserState.SetUser(createdUser);
-            ToastService.ShowToast(UserToastMessages.UserRegistered(createdUser.UserName));
-            NavigationService.NavigateToHomePage();
-            return;
-        }
-
-        ToastService.ShowToast(UserToastMessages.UserRegistrationError);
+        var appUser = registerResponse.Data!;
+        await UserState.SetUser(appUser, RememberMe);
+        ToastService.ShowToast(UserToastMessages.UserRegistered(appUser.UserName));
+        NavigationService.NavigateToHomePage();
+        return;
     }
 
     private void ToggleRegisterMode()
@@ -211,33 +181,28 @@
 
     private void ClearLoginFields()
     {
-        EmailUsername = string.Empty;
-        LoginPassword = string.Empty;
+        UserLogin = new AppUserLoginDTO();
         RememberMe = false;
     }
 
     private void ClearLoginWarnings()
     {
         EmailUserNameWarning = string.Empty;
-        LoginPasswordWarning = string.Empty;
+        PasswordWarning = string.Empty;
         InvalidLoginDataWarning = string.Empty;
     }
 
     private void ClearRegisterFields()
     {
-        Email = string.Empty;
-        UserName = string.Empty;
-        RegisterPassword = string.Empty;
-        FirstName = string.Empty;
-        LastName = string.Empty;
+        UserRegister = new AppUserRegisterDTO();
     }
 
     private void ClearRegisterWarnings()
     {
         EmailWarning = string.Empty;
         UserNameWarning = string.Empty;
-        RegisterPasswordWarning = string.Empty;
-        FirtsNameWarning = string.Empty;
+        PasswordWarning = string.Empty;
+        FirstNameWarning = string.Empty;
         LastNameWarning = string.Empty;
     }
 }

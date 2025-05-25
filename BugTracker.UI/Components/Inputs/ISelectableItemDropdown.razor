@@ -1,8 +1,8 @@
 ﻿@typeparam TItem where TItem : ISelectableItem
 
-@if (Selected != null)
+@if (SelectedId != 0)
 {
-    <button @onclick="Toggle">@Selected.Name</button>
+    <button @onclick="Toggle">@]</button>
 }
 else
 {
@@ -14,8 +14,8 @@ else
     @foreach (var item in Items)
     {
         <ISelectableItemDropdownItem Item="item"
-                                     IsSelected="Equals(item, Selected)"
-                                     OnSelected="() => Select(item)" />
+                                     IsSelected="Equals(item.Id, SelectedId)"
+                                     OnSelected="() => Select(item.Id)" />
     }
 }
 
@@ -27,26 +27,26 @@ else
     public required List<TItem> Items { get; set; }
 
     [Parameter]
-    public TItem? Selected { get; set; }
+    public int? SelectedId { get; set; }
 
     [Parameter] 
-    public EventCallback<TItem?> SelectedChanged { get; set; }
+    public EventCallback<int?> SelectedChanged { get; set; }
 
     private bool IsToggle { get; set; } = false;
 
     private void Toggle() => IsToggle = !IsToggle;
 
-    private async Task Select(TItem item)
+    private async Task Select(int id)
     {
         IsToggle = false;
 
-        if (Equals(item, Selected))
+        if (Equals(id, SelectedId))
         {
             await SelectedChanged.InvokeAsync(default);
         }
         else
         {
-            await SelectedChanged.InvokeAsync(item);
+            await SelectedChanged.InvokeAsync(id);
         }
     }
 }

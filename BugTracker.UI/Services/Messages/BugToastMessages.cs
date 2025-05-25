@@ -13,7 +13,7 @@ namespace BugTracker.UI.Services.Messages
             return string.IsNullOrEmpty(title) ?
                 GeneralToastMessages.Created(_entityName) :
                 new ToastMessage(
-                    message: $"{_entityName} \"{title}\" created.",
+                    message: $"{_entityName} '{title}' created.",
                     level: ToastLevel.Success);
         }
 
@@ -37,7 +37,7 @@ namespace BugTracker.UI.Services.Messages
             return string.IsNullOrEmpty(title) ?
                 GeneralToastMessages.Deleted(_entityName) :
                 new ToastMessage(
-                    message: $"{_entityName} \"{title}\" deleted.",
+                    message: $"{_entityName} '{title}' deleted.",
                     level: ToastLevel.Success);
         }
 

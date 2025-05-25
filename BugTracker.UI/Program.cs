@@ -8,17 +8,16 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7132") });
-builder.Services.AddScoped<BugTracker.UI.Services.BugClient>();
-builder.Services.AddScoped<BugTracker.UI.Services.PriorityClient>();
-builder.Services.AddScoped<BugTracker.UI.Services.StatusClient>();
-builder.Services.AddScoped<BugTracker.UI.Services.CategoryClient>();
-builder.Services.AddScoped<BugTracker.UI.Services.AppUserClient>();
-builder.Services.AddScoped<BugTracker.UI.Services.RoleClient>();
+builder.Services.AddScoped<BugTracker.UI.Services.BugsClient>();
+builder.Services.AddScoped<BugTracker.UI.Services.PrioritiesClient>();
+builder.Services.AddScoped<BugTracker.UI.Services.StatusesClient>();
+builder.Services.AddScoped<BugTracker.UI.Services.CategoriesClient>();
+builder.Services.AddScoped<BugTracker.UI.Services.AppUsersClient>();
+builder.Services.AddScoped<BugTracker.UI.Services.RolesClient>();
 builder.Services.AddScoped<BugTracker.UI.Services.StorageService>();
-builder.Services.AddSingleton<BugTracker.UI.Services.ToastService>();
 builder.Services.AddScoped<BugTracker.UI.Services.NavigationService>();
 builder.Services.AddScoped<BugTracker.UI.Services.State.UserState>();
-
+builder.Services.AddSingleton<BugTracker.UI.Services.ToastService>();
 
 var host = builder.Build();
 

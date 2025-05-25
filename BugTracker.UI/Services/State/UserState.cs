@@ -1,4 +1,4 @@
-﻿using BugTracker.Shared.Models;
+﻿using BugTracker.Shared.DTOs;
 using BugTracker.UI.Enums;
 
 namespace BugTracker.UI.Services.State
@@ -8,7 +8,7 @@ namespace BugTracker.UI.Services.State
         private const string UserKey = "loggedInUser";
         private readonly StorageService _storage;
 
-        public AppUser? CurrentUser { get; private set; }
+        public AppUserDTO? CurrentUser { get; private set; }
         public bool IsAuthenticated => CurrentUser != null;
 
         public UserState(StorageService storage)
@@ -19,15 +19,15 @@ namespace BugTracker.UI.Services.State
         public async Task LoadUserAsync()
         {
             // First check sessionStorage
-            CurrentUser = await _storage.GetItemAsync<AppUser>(UserKey, StorageType.Session)
-                          ?? await _storage.GetItemAsync<AppUser>(UserKey, StorageType.Local);
+            CurrentUser = await _storage.GetItemAsync<AppUserDTO>(UserKey, StorageType.Session)
+                          ?? await _storage.GetItemAsync<AppUserDTO>(UserKey, StorageType.Local);
         }
 
-        public async Task SetUser(AppUser user, bool rememberMe = false)
+        public async Task SetUser(AppUserDTO appUser, bool rememberMe = false)
         {
-            CurrentUser = user;
+            CurrentUser = appUser;
             var type = rememberMe ? StorageType.Local : StorageType.Session;
-            await _storage.SetItemAsync(UserKey, user, type);
+            await _storage.SetItemAsync(UserKey, appUser, type);
         }
 
         public async Task ClearUserAsync()

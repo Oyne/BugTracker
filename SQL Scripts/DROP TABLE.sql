@@ -1,13 +1,10 @@
 USE BugTracker
 GO
 
-DROP TABLE AssigneeBug
+DROP TABLE Bug
 DROP TABLE AppUser
 DROP TABLE Role
-DROP TABLE Bug
 DROP TABLE Status
 DROP TABLE Priority
 DROP TABLE Category
 GO
-
-

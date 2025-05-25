@@ -9,16 +9,16 @@ else
     <TextInputRow Title="Title"
                   Placeholder="Enter bug title"
                   ValidationMessage="@TitleWarning"
-                  @bind-Value="Title"></TextInputRow>
+                  @bind-Value="BugCreate.Title"></TextInputRow>
 
     <TextInputArea Title="Description"
                    Placeholder="Enter bug description"
                    ValidationMessage="@DescriptionWarning"
-                   @bind-Value="Description"></TextInputArea>
+                   @bind-Value="BugCreate.Description"></TextInputArea>
 
     <ISelectableItemDropdown Title="Priority"
-                             Items="@(Priorities!)"
-                             @bind-Selected="Priority"></ISelectableItemDropdown>
+                             Items="Priorities"
+                             @bind-Selected="BugCreate.PriorityId"></ISelectableItemDropdown>
 
     <ISelectableItemDropdown Title="Status"
                              Items="@(Statuses!)"
@@ -36,38 +36,25 @@ else
 }
 
 @code {
-    [Inject]
-    private NavigationService NavigationService { get; set; } = default!;
-    [Inject]
-    private UserState UserState { get; set; } = default!;
-    [Inject]
-    private BugClient BugClient { get; set; } = default!;
-    [Inject]
-    private PriorityClient PriorityClient { get; set; } = default!;
-    [Inject]
-    private StatusClient StatusClient { get; set; } = default!;
-    [Inject]
-    private CategoryClient CategoryClient { get; set; } = default!;
-    [Inject]
-    private AppUserClient AppUserClient { get; set; } = default!;
-    [Inject]
-    private ToastService ToastService { get; set; } = default!;
+    [Inject] private NavigationService NavigationService { get; set; } = default!;
+    [Inject] private UserState UserState { get; set; } = default!;
+    [Inject] private BugsClient BugsClient { get; set; } = default!;
+    [Inject] private PrioritiesClient PrioritiesClient { get; set; } = default!;
+    [Inject] private StatusesClient StatusesClient { get; set; } = default!;
+    [Inject] private CategoriesClient CategoriesClient { get; set; } = default!;
+    [Inject] private AppUsersClient AppUsersClient { get; set; } = default!;
+    [Inject] private ToastService ToastService { get; set; } = default!;
 
     private bool IsLoading = true;
 
-    private List<Priority>? Priorities { get; set; }
-    private List<Status>? Statuses { get; set; }
-    private List<Category>? Categories { get; set; }
-    private List<AppUser>? Users { get; set; }
+    private List<PriorityDTO> Priorities { get; set; } = new();
+    private List<StatusDTO> Statuses { get; set; } = new();
+    private List<CategoryDTO> Categories { get; set; } = new();
+    private List<AppUserDTO> Users { get; set; } = new(); 
 
-    private string Title { get; set; } = string.Empty;
+    private BugCreateDTO BugCreate { get; } = new ();
     private string TitleWarning { get; set; } = string.Empty;
-    private string Description { get; set; } = string.Empty;
     private string DescriptionWarning { get; set; } = string.Empty;
-    private Priority? Priority { get; set; }
-    private Status? Status { get; set; }
-    private Category? Category { get; set; }
-    private AppUser? Assignee { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,10 +64,14 @@ else
 
     private async Task LoadDataAsync()
     {
-        Priorities = await PriorityClient.GetAllAsync();
-        Statuses = await StatusClient.GetAllAsync();
-        Categories = await CategoryClient.GetAllAsync();
-        Users = await AppUserClient.GetAllAsync();
+        var prioritiesResponse = await PrioritiesClient.GetAllPrioritiesAsync();
+        Priorities = prioritiesResponse.Data;
+        var statusesResponse = await StatusesClient.GetAllStatusesAsync();
+        Statuses = statusesResponse.Data;
+        var categoriesResponse = await CategoriesClient.GetAllCategoriesAsync();
+        Categories = categoriesResponse.Data;
+        var usersResponse = await AppUsersClient.GetAllUsersAsync();
+        Users = usersResponse.Data;
     }
 
     private async Task CreateBug()
@@ -108,7 +99,7 @@ else
             return;
         }
 
-        var bugWithSameTitle = await BugClient.GetByTitleAsync(Title);
+        var bugWithSameTitle = await BugsClient.GetByTitleAsync(Title);
         if (bugWithSameTitle != null)
         {
             ToastService.ShowToast(BugToastMessages.BugWithTitleAlreadyExists(Title));
@@ -127,7 +118,7 @@ else
             LastEditorId = UserState.CurrentUser?.Id
         };
 
-        var createdBug = await BugClient.CreateAsync(bug);
+        var createdBug = await BugsClient.CreateAsync(bug);
         if (createdBug != null)
         {
             ToastService.ShowToast(BugToastMessages.BugCreated(bug.Title));

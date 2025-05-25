@@ -4,15 +4,13 @@
     {
         <UserListItem User="user"></UserListItem>
     }
-
 }
 else
 {
     <div>No users found</div>
-
 }
 
 @code {
     [Parameter]
-    public List<AppUser> Users { get; set; } = new List<AppUser>();
+    public List<AppUserDTO> Users { get; set; } = new List<AppUserDTO>();
 }

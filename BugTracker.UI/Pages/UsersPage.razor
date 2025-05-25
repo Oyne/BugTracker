@@ -6,24 +6,24 @@
 }
 else
 {
-        <UserList Users="Users"></UserList>
+    <UserList Users="Users"></UserList>
 }
 
 @code {
     [Inject] private NavigationService NavigationService { get; set; } = default!;
     [Inject] private UserState UserState { get; set; } = default!;
-    [Inject] private AppUserClient AppUsersClient { get; set; } = default!;
+    [Inject] private AppUsersClient AppUsersClient { get; set; } = default!;
     [Inject] private ToastService ToastService { get; set; } = default!;
 
     private bool IsLoading = true;
-
-    private List<AppUser>? Users { get; set; }
+    private List<AppUserDTO> Users { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
         if (!UserState.IsAuthenticated)
         {
             NavigationService.NavigateToLoginPage();
+            return;
         }
 
         await LoadDataAsync();
@@ -32,6 +32,7 @@ else
 
     private async Task LoadDataAsync()
     {
-        Users = await AppUsersClient.GetAllAsync();
+        var response = await AppUsersClient.GetAllUsersAsync();
+        Users = response.Data;
     }
 }

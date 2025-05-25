@@ -1,4 +1,4 @@
-﻿<div>
+﻿<div style="background-color:@User.Role?.Color">
     <div>
         @User.Id
     </div>
@@ -9,5 +9,6 @@
 
 @code {
     [Parameter]
-    public required AppUser User { get; set; }
+    public required AppUserDTO User { get; set; }
+
 }

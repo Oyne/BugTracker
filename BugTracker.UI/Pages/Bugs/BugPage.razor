@@ -65,22 +65,14 @@ else
 }
 
 @code {
-    [Inject]
-    private NavigationService NavigationService { get; set; } = default!;
-    [Inject]
-    private UserState UserState { get; set; } = default!;
-    [Inject]
-    private BugClient BugClient { get; set; } = default!;
-    [Inject]
-    private PriorityClient PriorityClient { get; set; } = default!;
-    [Inject]
-    private StatusClient StatusClient { get; set; } = default!;
-    [Inject]
-    private CategoryClient CategoryClient { get; set; } = default!;
-    [Inject]
-    private AppUserClient AppUserClient { get; set; } = default!;
-    [Inject]
-    private ToastService ToastService { get; set; } = default!;
+    [Inject] private NavigationService NavigationService { get; set; } = default!;
+    [Inject] private UserState UserState { get; set; } = default!;
+    [Inject] private BugsClient BugsClient { get; set; } = default!;
+    [Inject] private PrioritiesClient PrioritiesClient { get; set; } = default!;
+    [Inject] private StatusesClient StatusesClient { get; set; } = default!;
+    [Inject] private CategoriesClient CategoriesClient { get; set; } = default!;
+    [Inject] private AppUsersClient AppUsersClient { get; set; } = default!;
+    [Inject] private ToastService ToastService { get; set; } = default!;
 
     [Parameter]
     public int Id { get; set; }
@@ -89,13 +81,13 @@ else
     private bool IsEditMode { get; set; } = false;
     private bool IsEditDataLoaded { get; set; } = false;
 
-    private Bug? Bug;
-    private Bug? EditBug;
+    private Bug Bug = default!;
+    private Bug EditBug = default!;
 
-    private List<Priority>? Priorities { get; set; }
-    private List<Status>? Statuses { get; set; }
-    private List<Category>? Categories { get; set; }
-    private List<AppUser>? Users { get; set; }
+    private List<Priority> Priorities { get; set; } = new();
+    private List<Status> Statuses { get; set; } = new();
+    private List<Category> Categories { get; set; } = new();
+    private List<AppUser> Users { get; set; } = new();
 
     private string TitleWarning { get; set; } = string.Empty;
     private string DescriptionWarning { get; set; } = string.Empty;
@@ -108,7 +100,7 @@ else
 
     private async Task LoadBugDataAsync()
     {
-        var bug = await BugClient.GetByIdAsync(Id);
+        var bug = await BugsClient.GetByIdAsync(Id);
         if (bug == null)
         {
             ToastService.ShowToast(BugToastMessages.BugNotFound);
@@ -122,10 +114,10 @@ else
 
     private async Task LoadEditDataAsync()
     {
-        Priorities = await PriorityClient.GetAllAsync();
-        Statuses = await StatusClient.GetAllAsync();
-        Categories = await CategoryClient.GetAllAsync();
-        Users = await AppUserClient.GetAllAsync();
+        Priorities = await PrioritiesClient.GetAllAsync();
+        Statuses = await StatusesClient.GetAllAsync();
+        Categories = await CategoriesClient.GetAllAsync();
+        Users = await AppUsersClient.GetAllAsync();
     }
 
     private async Task ToggleEditMode()
@@ -171,7 +163,7 @@ else
             return;
         }
 
-        var bugWithSameTitle = await BugClient.GetByTitleAsync(EditBug.Title);
+        var bugWithSameTitle = await BugsClient.GetByTitleAsync(EditBug.Title);
         if (bugWithSameTitle != null && bugWithSameTitle.Id != EditBug.Id)
         {
             ToastService.ShowToast(BugToastMessages.BugWithTitleAlreadyExists(EditBug.Title));
@@ -179,9 +171,14 @@ else
         }
 
         EditBug.LastEditorId = UserState.CurrentUser?.Id;
-        var updatedBug = await BugClient.UpdateAsync(EditBug);
-        ToastService.ShowToast(BugToastMessages.BugUpdated);
+        var isBugUpdated = await BugsClient.UpdateAsync(EditBug);
+        if(!isBugUpdated)
+        {
+            ToastService.ShowToast(BugToastMessages.BugUpdateError);
+            return;
+        };
 
+        ToastService.ShowToast(BugToastMessages.BugUpdated);
         await LoadBugDataAsync();
         IsEditMode = false;
     }

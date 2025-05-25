@@ -15,17 +15,18 @@ else
 @code {
     [Inject] private NavigationService NavigationService { get; set; } = default!;
     [Inject] private UserState UserState { get; set; } = default!;
-    [Inject] private BugClient BugsClient { get; set; } = default!;
+    [Inject] private BugsClient BugsClient { get; set; } = default!;
+    [Inject] private ToastService ToastService { get; set; } = default!;
 
     private bool IsLoading = true;
-
-    private List<Bug>? Bugs { get; set; }
+    private List<BugDTO> Bugs { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
         if (!UserState.IsAuthenticated)
         {
             NavigationService.NavigateToLoginPage();
+            return;
         }
 
         await LoadDataAsync();
@@ -34,6 +35,7 @@ else
 
     private async Task LoadDataAsync()
     {
-        Bugs = await BugsClient.GetAllAsync();
+        var response = await BugsClient.GetAllBugsAsync();
+        Bugs = response.Data;
     }
 }

@@ -6,11 +6,12 @@ namespace BugTracker.UI.Services
     {
         public event Action? OnToastsUpdated;
 
+        private const int MaxToasts = 5;
         public List<ToastMessage> Toasts { get; } = new();
 
         public void ShowToast(ToastMessage toastMessage)
         {
-            if (Toasts.Count >= 5)
+            if (Toasts.Count >= MaxToasts)
             {
                 Toasts.RemoveAt(0);
             }

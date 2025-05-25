@@ -1,6 +1,6 @@
 ﻿<div class="toast @GetCssClass(ToastMessage.Level)">
     <div>
-        @ToastMessage.Level.ToString()
+        @(ToastMessage.Title ?? ToastMessage.Level.ToString())
     </div>
     <div>
         @ToastMessage.Message

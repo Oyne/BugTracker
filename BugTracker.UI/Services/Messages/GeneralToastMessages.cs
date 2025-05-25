@@ -52,7 +52,7 @@ namespace BugTracker.UI.Services.Messages
 
         public static ToastMessage EntityWithParameterAlreadyExists(string entityName, string parameter, string value) =>
             new ToastMessage(
-                message: $"{entityName} with {parameter} \"{value}\" already exists.",
+                message: $"{entityName} with {parameter} '{value}' already exists.",
                 level: ToastLevel.Error);
     }
 }
