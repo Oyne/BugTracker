@@ -28,11 +28,13 @@ This project includes a Blazor WebAssembly UI, an ASP.NET Core API, and a SQL Se
     The UI will communicate with the API at `http://localhost:5000/api` inside the Docker network.
 
 5. Application default user:
-Email: admin@mail.com
-Username: Admin
-Password = admin1111
 
-6. 
+Email: admin@mail.com
+
+Username: Admin
+
+Password = admin1111
+ 
 ## Stopping/Removing the containers
 
 To stop containers run:
