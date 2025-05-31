@@ -12,21 +12,21 @@ namespace BugTracker.Shared.Models
 
         [Column("Email")]
         [Required]
-        public required string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Column("Username")]
         [Required]
-        public required string UserName { get; set; }
+        public string UserName { get; set; } = string.Empty;
 
         [Column("Password")]
         [Required]
-        public required string Password { get; set; }
+        public string Password { get; set; } = string.Empty;
 
         [Column("FirstName")]
-        public required string FirstName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
 
         [Column("LastName")]
-        public required string LastName { get; set; }
+        public string LastName { get; set; } = string.Empty;
 
         [Column("RoleId")]
         public int? RoleId { get; set; }

@@ -1,6 +1,7 @@
 ﻿<div class="toast @GetCssClass(ToastMessage.Level)">
-    <div>
-        @ToastMessage.Level.ToString()
+    <div class="title">
+        <i class="fa-solid @GetIconClass(ToastMessage.Level)"></i>
+        @(ToastMessage.Title ?? ToastMessage.Level.ToString())
     </div>
     <div>
         @ToastMessage.Message
@@ -12,8 +13,7 @@
 
     [Parameter] public ToastMessage ToastMessage { get; set; } = default!;
 
-    private int _autoDismissDelay = 5 * 1000; // 5 seconds
-
+    private int _autoDismissDelay = 3 * 1000; // 3 seconds
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(_autoDismissDelay);
@@ -26,6 +26,15 @@
         ToastLevel.Success => "toast-success",
         ToastLevel.Warning => "toast-warning",
         ToastLevel.Error => "toast-error",
+        _ => "toast-info"
+    };
+
+    private string GetIconClass(ToastLevel level) => level switch
+    {
+        ToastLevel.Info => "fa-circle-info",
+        ToastLevel.Success => "fa-circle-check",
+        ToastLevel.Warning => "fa-triangle-exclamation",
+        ToastLevel.Error => "fa-circle-xmark",
         _ => "toast-info"
     };
 }

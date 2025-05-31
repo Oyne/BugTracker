@@ -1,5 +1,6 @@
 ﻿using BugTracker.API.Data;
-using BugTracker.Shared.Models;
+using BugTracker.Shared.DTOs;
+using BugTracker.Shared.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,175 +19,44 @@ namespace BugTracker.API.Controllers
 
         // Get api/roles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
+        public async Task<ApiResponse<IEnumerable<RoleDTO>>> GetRoles()
         {
-            return await _context.Roles.ToListAsync();
+            var roles = await _context.Roles.ToListAsync();
+
+            var roleDTOs = roles.Select(r => r.ToDTO()).ToList();
+            return new ApiResponse<IEnumerable<RoleDTO>>
+            {
+                Success = true,
+                Data = roleDTOs,
+                Message = "Roles retrieved successfully.",
+                StatusCode = 200
+            };
         }
 
         // Get api/roles/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Role>> GetRoleById(int id)
+        public async Task<ApiResponse<RoleDTO>> GetRoleById(int id)
         {
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == id);
             if (role == null)
             {
-                return NotFound(new
+                return new ApiResponse<RoleDTO>
                 {
-                    error = "Role not found",
-                    details = $"Role with id: '{id}' does not exist"
-                });
+                    Success = false,
+                    Error = "Role not found",
+                    Message = $"Role with ID: '{id}' does not exist.",
+                    StatusCode = 404
+                };
             }
-            return new ObjectResult(role);
-        }
 
-        // Get api/roles/{id}/users
-        [HttpGet("{id}/users")]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsersWithRole(int id)
-        {
-            var role = await _context.Roles
-                .Include(r => r.AppUsers)
-                .Where(r => r.Id == id)
-                .FirstOrDefaultAsync();
-
-            if (role == null)
+            var roleDTO = role.ToDTO();
+            return new ApiResponse<RoleDTO>
             {
-                return NotFound(new
-                {
-                    error = "Role not found",
-                    details = $"Role with id: '{id}' does not exist"
-                });
-            }
-            else if (!role.AppUsers.Any())
-            {
-                return NotFound(new
-                {
-                    error = "Users not found",
-                    details = $"No user with role: '{role.Name}' exist"
-                });
-            }
-            return new ObjectResult(role.AppUsers);
-        }
-
-        // Post api/roles
-        [HttpPost]
-        public async Task<ActionResult<Role>> CreateRole(Role role)
-        {
-            if (role == null)
-            {
-                return BadRequest("Role cannot be null");
-            }
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == role.Name);
-                if (existingRole == null)
-                {
-                    _context.Roles.Add(role);
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-
-                    return CreatedAtAction(nameof(GetRoleById), new { id = role.Id }, role);
-                }
-                return Conflict(new
-                {
-                    error = "Conflict",
-                    details = $"Role with name: '{role.Name}' already exists"
-                });
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return StatusCode(500, new
-                {
-                    error = "An unexpected error occurred",
-                    details = ex.Message
-                });
-            }
-        }
-
-        // Put api/roles
-        [HttpPut()]
-        public async Task<ActionResult<Role>> UpdateRole(Role role)
-        {
-            if (role == null)
-            {
-                return BadRequest("Body cannot be null");
-            }
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == role.Id);
-                if (existingRole == null)
-                {
-                    return NotFound(new
-                    {
-                        error = "Role not found",
-                        details = $"Role with id: '{role.Id}' does not exist"
-                    });
-                }
-
-                existingRole.Name = role.Name;
-                existingRole.Color = role.Color;
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return Ok(new
-                {
-                    message = "Role updated",
-                    details = $"Role with id: '{existingRole.Id}' was updated"
-                });
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return StatusCode(500, new
-                {
-                    error = "An unexpected error occurred",
-                    details = ex.Message
-                });
-            }
-        }
-
-        // Delete api/roles/{id}
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Role>> DeleteRole(int id)
-        {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == id);
-                if (existingRole == null)
-                {
-                    return NotFound(new
-                    {
-                        error = "Role not found",
-                        details = $"Role with id: '{id}' does not exist"
-                    });
-                }
-
-                _context.Roles.Remove(existingRole);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return Ok(new
-                {
-                    message = "Role deleted",
-                    details = $"Role with id: '{existingRole.Id}' was deleted"
-                });
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return StatusCode(500, new
-                {
-                    error = "An unexpected error occurred",
-                    details = ex.Message
-                });
-            }
+                Success = true,
+                Data = roleDTO,
+                Message = "Role retrieved successfully.",
+                StatusCode = 200
+            };
         }
     }
 }

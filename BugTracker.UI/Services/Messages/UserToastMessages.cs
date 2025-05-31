@@ -10,14 +10,14 @@ namespace BugTracker.UI.Services.Messages
         private static readonly string _emailParameter = "email";
         private static readonly string _userNameParameter = "username";
 
-        public static ToastMessage UserRegistered(string userName) =>
+        public static ToastMessage UserRegistered(string fullName) =>
                 new ToastMessage(
-                    message: $"{_entityName} \"{userName}\" registered.",
+                    message: $"{_entityName} '{fullName}' registered.",
                     level: ToastLevel.Success);
 
-        public static ToastMessage UserLoggedIn(string userName) =>
+        public static ToastMessage UserLoggedIn(string fullName) =>
                 new ToastMessage(
-                    message: $"Welcome \"{userName}\".",
+                    message: $"Welcome '{fullName}'.",
                     level: ToastLevel.Success);
 
         public static ToastMessage InvalidLoginData =>
@@ -53,7 +53,7 @@ namespace BugTracker.UI.Services.Messages
             return string.IsNullOrEmpty(userName) ?
                 GeneralToastMessages.Deleted(_entityName) :
                 new ToastMessage(
-                    message: $"{_entityName} \"{userName}\" deleted.",
+                    message: $"{_entityName} '{userName}' deleted.",
                     level: ToastLevel.Success);
         }
 

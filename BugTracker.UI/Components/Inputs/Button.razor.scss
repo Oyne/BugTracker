@@ -1,0 +1,23 @@
+﻿﻿.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--secondary-container);
+    transition: 0.2s;
+    width: 100%;
+    height: 50px;
+    border: solid 3px var(--on-secondary-container-border);
+    border-radius: 10px;
+    user-select: none;
+
+    .text {
+        font-weight: 600;
+        font-size: 30px;
+        color: var(--on-secondary-container);
+    }
+
+    &:hover {
+        background: var(--on-secondary-container-hover);
+        transition: 0.2s;
+    }
+}

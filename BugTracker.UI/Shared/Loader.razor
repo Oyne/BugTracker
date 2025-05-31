@@ -1,0 +1,21 @@
+﻿@if (LoaderService.IsLoading)
+{
+    <div class="loader">
+        <div class="spinner">Loading...</div>
+    </div>
+}
+
+@code {
+    [Inject] private LoaderService LoaderService { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        LoaderService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LoaderService.OnChange -= StateHasChanged;
+    }
+}
+    

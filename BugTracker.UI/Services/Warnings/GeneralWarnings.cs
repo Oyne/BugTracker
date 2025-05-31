@@ -8,5 +8,6 @@
 
         public static string InvalidInput => "Invalid input.";
 
+        public static string SomethingWentWrong => "Something went wrong.";
     }
 }

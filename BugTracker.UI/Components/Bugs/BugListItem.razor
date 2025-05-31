@@ -1,0 +1,15 @@
+﻿<div @onclick="() => NavigationService.NavigateToBugPage(Bug.Id)">
+    <div>
+        @Bug.Id
+    </div>
+    <div>
+        @Bug.Title
+    </div>
+</div>
+
+@code {
+    [Inject] private NavigationService NavigationService { get; set; } = default!;
+
+    [Parameter]
+    public required BugDTO Bug { get; set; }
+}

@@ -1,0 +1,55 @@
+﻿@typeparam TItem where TItem : ISelectableItem
+
+@if (SelectedItem !=  null)
+{
+    <button @onclick="Toggle">@SelectedItem.Name</button>
+}
+else
+{
+    <button @onclick="Toggle">@Title</button>
+}
+
+@if (IsToggle && Items != null)
+{
+    @foreach (var item in Items)
+    {
+        <ISelectableItemDropdownItem Item="item"
+                                     IsSelected="Equals(item, SelectedItem)"
+                                     OnSelected="() => Select(item.Id)" /> 
+    }
+}
+
+@code {
+    [Parameter]
+    public required string Title { get; set; }
+
+    [Parameter]
+    public required List<TItem> Items { get; set; }
+
+    [Parameter]
+    public int? SelectedId { get; set; }
+
+    private TItem? SelectedItem => Items.FirstOrDefault(x => x.Id == SelectedId);
+
+    [Parameter] 
+    public EventCallback<int?> SelectedIdChanged { get; set; }
+
+
+    private bool IsToggle { get; set; } = false;
+
+    private void Toggle() => IsToggle = !IsToggle;
+
+    private async Task Select(int id)
+    {
+        IsToggle = false;
+
+        if (Equals(id, SelectedId))
+        {
+            await SelectedIdChanged.InvokeAsync(default);
+        }
+        else
+        {
+            await SelectedIdChanged.InvokeAsync(id);
+        }
+    }
+}

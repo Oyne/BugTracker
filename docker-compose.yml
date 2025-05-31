@@ -1,0 +1,58 @@
+services:
+  bugtracker-sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: bugtracker-sqlserver
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"    # Change to a strong password!
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - bugtracker-sql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/1433'"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    networks:
+      - bugtracker-net
+  bugtracker-api:
+    build:
+      context: .
+      dockerfile: BugTracker.API/Dockerfile
+    image: bugtracker-api:latest
+    container_name: bugtracker-api
+    depends_on:
+      bugtracker-sqlserver:
+        condition: service_healthy
+    restart: on-failure
+    ports:
+      - "5000:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Docker"
+      ASPNETCORE_URLS=http: //+:80
+      ConnectionStrings__DefaultConnection: "Server=bugtracker-sqlserver;Database=BugTracker;User Id=sa;Password=YourStrong!Passw0rd;Encrypt=false;TrustServerCertificate=true;"
+      UIOrigin: "http://localhost:5001"
+    networks:
+      - bugtracker-net
+
+  bugtracker-ui:
+    build:
+      context: .
+      dockerfile: BugTracker.UI/Dockerfile
+    image: bugtracker-ui:latest
+    container_name: bugtracker-ui
+    depends_on:
+      - bugtracker-api
+    restart: on-failure
+    ports:
+      - "5001:80"
+    networks:
+      - bugtracker-net
+
+volumes:
+  bugtracker-sql-data:
+
+networks:
+  bugtracker-net:
+    driver: bridge

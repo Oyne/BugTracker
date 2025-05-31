@@ -1,0 +1,117 @@
+﻿@page "/create-bug"
+
+@if (IsLoading)
+{
+    <div>Loading...</div>
+}
+else
+{
+    <TextInputRow Title="Title"
+                  Placeholder="Enter bug title"
+                  ValidationMessage="@TitleWarning"
+                  @bind-Value="CreateBug.Title"></TextInputRow>
+
+    <TextInputArea Title="Description"
+                   Placeholder="Enter bug description"
+                   ValidationMessage="@DescriptionWarning"
+                   @bind-Value="CreateBug.Description"></TextInputArea>
+
+    <ISelectableItemDropdown Title="Priority"
+                             Items="@Priorities"
+                             @bind-SelectedId="CreateBug.PriorityId"></ISelectableItemDropdown>
+
+    <ISelectableItemDropdown Title="Status"
+                             Items="@Statuses"
+                             @bind-SelectedId="CreateBug.StatusId"></ISelectableItemDropdown>
+
+    <ISelectableItemDropdown Title="Category"
+                             Items="@Categories"
+                             @bind-SelectedId="CreateBug.CategoryId"></ISelectableItemDropdown>
+
+    <UserDropdown Title="Assignee"
+                  Users="Users"
+                  @bind-SelectedId="CreateBug.AssigneeId"></UserDropdown>
+
+    <button @onclick="Create">Create bug</button>
+}
+
+@code {
+    [Inject] private NavigationService NavigationService { get; set; } = default!;
+    [Inject] private UserState UserState { get; set; } = default!;
+    [Inject] private BugsClient BugsClient { get; set; } = default!;
+    [Inject] private PrioritiesClient PrioritiesClient { get; set; } = default!;
+    [Inject] private StatusesClient StatusesClient { get; set; } = default!;
+    [Inject] private CategoriesClient CategoriesClient { get; set; } = default!;
+    [Inject] private AppUsersClient AppUsersClient { get; set; } = default!;
+    [Inject] private ToastService ToastService { get; set; } = default!;
+
+    private bool IsLoading = true;
+
+    private List<PriorityDTO> Priorities { get; set; } = new();
+    private List<StatusDTO> Statuses { get; set; } = new();
+    private List<CategoryDTO> Categories { get; set; } = new();
+    private List<AppUserDTO> Users { get; set; } = new();
+
+    private BugCreateDTO CreateBug { get; } = new();
+    private string TitleWarning { get; set; } = string.Empty;
+    private string DescriptionWarning { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+        IsLoading = false;
+    }
+
+    private async Task LoadDataAsync()
+    {
+        var prioritiesResponse = await PrioritiesClient.GetAllPrioritiesAsync();
+        Priorities = prioritiesResponse.Data;
+        var statusesResponse = await StatusesClient.GetAllStatusesAsync();
+        Statuses = statusesResponse.Data;
+        var categoriesResponse = await CategoriesClient.GetAllCategoriesAsync();
+        Categories = categoriesResponse.Data;
+        var usersResponse = await AppUsersClient.GetAllUsersAsync();
+        Users = usersResponse.Data;
+    }
+
+    private async Task Create()
+    {
+        TitleWarning = string.Empty;
+        DescriptionWarning = string.Empty;
+
+        bool isValid = true;
+
+        if (string.IsNullOrWhiteSpace(CreateBug.Title))
+        {
+            TitleWarning = GeneralWarnings.FillRequiredField("Title");
+            isValid = false;
+        }
+
+        if (string.IsNullOrWhiteSpace(CreateBug.Description))
+        {
+            DescriptionWarning = GeneralWarnings.FillRequiredField("Description");
+            isValid = false;
+        }
+
+        if (!isValid)
+        {
+            ToastService.ShowToast(GeneralToastMessages.FillRequiredFields);
+            return;
+        }
+
+        CreateBug.AuthorId = UserState.CurrentUser!.Id;
+        CreateBug.LastEditorId = UserState.CurrentUser!.Id;
+        var response = await BugsClient.CreateBugAsync(CreateBug);
+        if (!response.Success)
+        {
+            ToastService.ShowToast(new ToastMessage(
+                title: response.Error!,
+                message: response.Message ?? GeneralWarnings.SomethingWentWrong,
+            level: ToastLevel.Error));
+            return;
+        }
+
+        ToastService.ShowToast(BugToastMessages.BugCreated());
+        NavigationService.NavigateToHomePage();
+    }
+}
