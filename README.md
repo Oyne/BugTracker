@@ -38,9 +38,11 @@ This project includes a Blazor WebAssembly UI, an ASP.NET Core API, and a SQL Se
 ## Stopping/Removing the containers
 
 To stop containers run:
+
 docker compose stop
 
 To remove containers run:
+
 docker compose down
 
 ## Updating Your Local Repository
@@ -49,8 +51,15 @@ To pull changes run:
 
 git pull
 
-After pulling changes, rebuild the containers to apply updates:
+After pulling changes check if there were changes to Dockerfiles or docker.compose.yml, if yes then run:
+
+docker compose down
 
 docker compose up --build
+
+If no just rebuild:
+
+docker compose up --build
+
 
 
