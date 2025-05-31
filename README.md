@@ -17,7 +17,7 @@ This project includes a Blazor WebAssembly UI, an ASP.NET Core API, and a SQL Se
 
 3. Build and start the containers using Docker Compose:
 
-    docker-compose up --build
+    docker compose up --build
 
     This will build the UI and API images, start the SQL Server container, and run all services together.
 
@@ -38,10 +38,10 @@ This project includes a Blazor WebAssembly UI, an ASP.NET Core API, and a SQL Se
 ## Stopping/Removing the containers
 
 To stop containers run:
-docker-compose stop
+docker compose stop
 
 To remove containers run:
-docker-compose down
+docker compose down
 
 ## Updating Your Local Repository
 
@@ -51,6 +51,6 @@ git pull
 
 After pulling changes, rebuild the containers to apply updates:
 
-docker-compose up --build
+docker compose up --build
 
 
