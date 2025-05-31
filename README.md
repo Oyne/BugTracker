@@ -4,7 +4,7 @@ This project includes a Blazor WebAssembly UI, an ASP.NET Core API, and a SQL Se
 
 ## Prerequisites
 
-- Docker installed on your machine  
+- Docker installed on your machine, you can do it [here](https://www.docker.com/get-started/)
 - Docker Compose (usually included with Docker Desktop)
 
 ## How to run
@@ -29,11 +29,11 @@ This project includes a Blazor WebAssembly UI, an ASP.NET Core API, and a SQL Se
 
 5. Application default user:
 
-Email: admin@mail.com
+    Email: admin@mail.com
 
-Username: Admin
+    Username: Admin
 
-Password = admin1111
+    Password = admin1111
  
 ## Stopping/Removing the containers
 
@@ -42,3 +42,15 @@ docker-compose stop
 
 To remove containers run:
 docker-compose down
+
+## Updating Your Local Repository
+
+To pull changes run: 
+
+git pull
+
+After pulling changes, rebuild the containers to apply updates:
+
+docker-compose up --build
+
+
