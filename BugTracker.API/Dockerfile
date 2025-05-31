@@ -5,6 +5,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 # Copy csproj and restore dependencies
 COPY ["BugTracker.API/BugTracker.API.csproj", "BugTracker.API/"]
+COPY ["BugTracker.Shared/BugTracker.Shared.csproj", "BugTracker.Shared/"]
 RUN dotnet restore "BugTracker.API/BugTracker.API.csproj"
 
 # Copy everything else & compile

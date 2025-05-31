@@ -1,42 +1,45 @@
 ﻿# Stage 1: Build the WASM app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /app
 
-# Install Node.js (LTS) and Dart Sass (globally)
+# Install Node.js (LTS) and Dart Sass globally
 RUN apt-get update && \
-    apt-get install -y curl gnupg build-essential git && \
+    apt-get install -y curl && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g sass && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy only the UI project file and restore dependencies
+# Copy csproj and restore as separate layers for better cache
 COPY ["BugTracker.UI/BugTracker.UI.csproj", "BugTracker.UI/"]
+COPY ["BugTracker.Shared/BugTracker.Shared.csproj", "BugTracker.Shared/"]
 RUN dotnet restore "BugTracker.UI/BugTracker.UI.csproj"
 
-
-# Copy the rest of the source
+# Copy everything else
 COPY . .
 
-# Copy Docker-specific appsettings
-RUN cp BugTracker.UI/wwwroot/appsettings.Docker.json BugTracker.UI/wwwroot/appsettings.json
+# Set working directory to UI project
+WORKDIR /app/BugTracker.UI
 
-WORKDIR "/src/BugTracker.UI"
+# Ensure Docker-specific appsettings are used
+RUN cp wwwroot/appsettings.Docker.json wwwroot/appsettings.json
 
-# Build the app (Sass will be compiled by DartSassBuilder during this)
+# Build
+RUN dotnet build -c Release
+
+# Publish 
 RUN dotnet publish -c Release -o /app/publish
 
-# Stage 2: Serve the published files with nginx
+# Stage 2: Serve with nginx
 FROM nginx:alpine AS runtime
 
-# Clear default nginx content
+# Remove default nginx static content
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy the Blazor WebAssembly app to nginx
+# Copy published files
 COPY --from=build /app/publish/wwwroot/wwwroot/. /usr/share/nginx/html/
 
-# Configure nginx to support SPA routing
+# Setup nginx for SPA fallback routing
 RUN echo 'server { \
     listen 80; \
     root /usr/share/nginx/html; \
@@ -45,5 +48,4 @@ RUN echo 'server { \
 }' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
