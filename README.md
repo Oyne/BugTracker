@@ -4,7 +4,7 @@ This project includes a Blazor WebAssembly UI, an ASP.NET Core API, and a SQL Se
 
 ## Prerequisites
 
-- Docker installed on your machine, you can do it [here](https://www.docker.com/get-started/)
+- Docker installed on your machine (If not you can do it [here](https://www.docker.com/get-started/))
 - Docker Compose (usually included with Docker Desktop)
 
 ## How to run
