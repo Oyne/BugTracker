@@ -9,11 +9,47 @@
 }
 
 * {
+    padding: 0;
+    margin: 0;
     font-family: "Comic Sans MS", ComicNeue, CoralPixels;
 }
 
 h1:focus {
     outline: none;
+}
+
+:root {
+    /*Primary colors*/
+    --primary: #f4f1f6;
+    --on-primary: #2e2a31;
+    --primary-container: #e2dce8;
+    --on-primary-container: #3b3344;
+    --primary-container-border: #b9afc3;
+    --primary-container-hover: #d6cfe0;
+    /*Secondary colors*/
+    --secondary-container: #dad4e0;
+    --on-secondary-container: #423a4f;
+    --on-secondary-container-hover: #c9c2d3;
+    --on-secondary-container-border: #b1a7be;
+    /*Toast colors*/
+    --toast-info: #4a90e2;
+    --toast-success: #4caf50;
+    --toast-warning: #f5a623;
+    --toast-error: #e74c3c;
+    --on-toast: #ffffff;
+}
+
+.loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: var(--primary);
+}
+
+.spinner {
+    font-size: 2rem;
+    font-weight: bold;
 }
 
 #blazor-error-ui {

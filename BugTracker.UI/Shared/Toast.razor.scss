@@ -1,0 +1,35 @@
+﻿.toast {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: auto;
+    padding: 0.5rem 1rem;
+    color: var(--on-toast);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s, opacity 0.3s;
+    pointer-events: auto;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word; 
+
+    .title {
+        font-weight: bold;
+    }
+}
+
+.toast-info {
+    background-color: var(--toast-info);
+}
+
+.toast-success {
+    background-color: var(--toast-success);
+}
+
+.toast-warning {
+    background-color: var(--toast-warning);
+}
+
+.toast-error {
+    background-color: var(--toast-error);
+}

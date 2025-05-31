@@ -1,26 +1,33 @@
-﻿<div>
-    <p>@Title</p>
-    <div>
-        <input type="@_inputType"
+﻿<div class="component">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <div class="title">@Title</div>
+    }
+    <div id="@Id" class="input-container">
+        <input type="@InputType"
                placeholder="@Placeholder"
                value="@Value"
+               class="input"
                @oninput="OnValueChanged" />
         @if (IsPassword)
         {
-            <i class="fa-solid @( _inputType == "password" ? "fa-eye" : "fa-eye-slash")"
-               @onclick="TogglePasswordVisibility" />
+            <div class="show-password-icon" @onclick="TogglePasswordVisibility">
+                <i class="fa-solid @(InputType == "password" ? "fa-eye" : "fa-eye-slash")" />
+            </div>
         }
     </div>
     @if (!string.IsNullOrWhiteSpace(ValidationMessage))
     {
-        <div>
+        <div class="validation-message">
             @ValidationMessage
         </div>
     }
 </div>
 
+
 @code
 {
+    [Parameter] public string? Id { get; set; }
     [Parameter]
     public string? Title { get; set; }
     [Parameter]
@@ -34,11 +41,11 @@
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
 
-    private string _inputType = "text";
+    private string InputType = "text";
 
     protected override void OnParametersSet()
     {
-        _inputType = IsPassword ? "password" : "text";
+        InputType = IsPassword ? "password" : "text";
     }
 
     private async Task OnValueChanged(ChangeEventArgs e)
@@ -47,6 +54,6 @@
         await ValueChanged.InvokeAsync(Value);
     }
 
-    private void TogglePasswordVisibility() => _inputType = _inputType == "password" ? "text" : "password";
+    private void TogglePasswordVisibility() => InputType = InputType == "password" ? "text" : "password";
 
 }

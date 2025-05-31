@@ -1,4 +1,5 @@
 ﻿using BugTracker.API.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.API.Data
 {
@@ -6,7 +7,7 @@ namespace BugTracker.API.Data
     {
         public static void Initialize(ApplicationDbContext context, PasswordService passwordService)
         {
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
 
             // Roles
             if (!context.Roles.Any())
@@ -46,13 +47,6 @@ namespace BugTracker.API.Data
             if (!context.Categories.Any())
             {
                 context.Categories.AddRange(MockData.GetCategories);
-                context.SaveChanges();
-            }
-
-            // Bugs
-            if (!context.Bugs.Any())
-            {
-                context.Bugs.AddRange(MockData.GetBugs);
                 context.SaveChanges();
             }
         }

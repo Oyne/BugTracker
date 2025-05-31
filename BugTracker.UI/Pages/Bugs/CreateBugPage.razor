@@ -99,6 +99,8 @@ else
             return;
         }
 
+        CreateBug.AuthorId = UserState.CurrentUser!.Id;
+        CreateBug.LastEditorId = UserState.CurrentUser!.Id;
         var response = await BugsClient.CreateBugAsync(CreateBug);
         if (!response.Success)
         {
@@ -109,7 +111,7 @@ else
             return;
         }
 
-        ToastService.ShowToast(BugToastMessages.BugCreated(response.Data.Title));
+        ToastService.ShowToast(BugToastMessages.BugCreated());
         NavigationService.NavigateToHomePage();
     }
 }

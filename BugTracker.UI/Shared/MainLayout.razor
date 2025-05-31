@@ -1,10 +1,14 @@
 ﻿@inherits LayoutComponentBase
 
+@if (UserState.IsAuthenticated)
+{
+    <header>
+        <button @onclick="Logout">Logout</button>
+    </header>
+}
+<ToastHost />
 <main>
-    <button @onclick="() => NavigationService.NavigateToHomePage()">Bugs</button>
-    <button @onclick="() => NavigationService.NavigateToUsersPage()">Users</button>
-    <button @onclick="Logout">Logout</button>
-    <ToastHost />
+    <Loader />
     @Body
 </main>
 

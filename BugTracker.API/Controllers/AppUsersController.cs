@@ -214,7 +214,8 @@ namespace BugTracker.API.Controllers
                 var newUser = AppUserMapper.ToEntity(userRegisterDTO);
                 newUser.Password = _passwordService.HashPassword(newUser, userRegisterDTO.Password);
                 bool isFirstAppUser = !await _context.AppUsers.AnyAsync();
-                newUser.RoleId = isFirstAppUser ? 1 : 2;
+                bool isRolesExits = await _context.Roles.AnyAsync();
+                newUser.RoleId = isRolesExits ? (isFirstAppUser ? 1 : 2) : null;
 
                 _context.AppUsers.Add(newUser);
                 await _context.SaveChangesAsync();

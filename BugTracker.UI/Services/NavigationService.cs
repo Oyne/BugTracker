@@ -30,10 +30,5 @@ namespace BugTracker.UI.Services
         {
             _navigationManager.NavigateTo($"/bug/{bugId}");
         }
-
-        public void NavigateToUsersPage()
-        {
-            _navigationManager.NavigateTo("/users");
-        }
     }
 }

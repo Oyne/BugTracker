@@ -1,0 +1,19 @@
+﻿﻿<div id="@Id" class="button" @onclick=HandleClick>
+    <div class="text">@Text</div>
+</div>
+
+@code {
+    [Parameter]
+    public string Id { get; set; } = default!;
+
+    [Parameter]
+    public string Text { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
+    }
+}

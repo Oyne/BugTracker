@@ -1,47 +1,62 @@
 ﻿@page "/login"
 
-<div hidden="@IsRegisterMode">
-    <TextInputRow Title="Email/Username"
-                  Placeholder="Enter email/username"
-                  ValidationMessage="@EmailUserNameWarning"
-                  @bind-Value="UserLogin.EmailUserName"></TextInputRow>
-    <TextInputRow Title="Password"
-                  Placeholder="Enter password"
-                  IsPassword="true"
-                  ValidationMessage="@PasswordWarning"
-                  @bind-Value="UserLogin.Password"></TextInputRow>
-    <div>@InvalidLoginDataWarning</div>
-    <button @onclick="Login">Login</button>
-    <button @onclick="ToggleRegisterMode">Register</button>
-    <div>
-        <input type="checkbox" @bind="RememberMe" /> Remember me
-    </div>
-</div>
+<div id="login-page" class="login-page">
+    <div id="@(IsRegisterMode ? "register" : "login")" class="form">
+        @if (!IsRegisterMode)
+        {
+            <div class="title">Login</div>
+            <TextInputRow id="email-username-input"
+                              Title="Email/Username"
+                              Placeholder="Enter email/username"
+                              ValidationMessage="@EmailUserNameWarning"
+                              @bind-Value="UserLogin.EmailUserName" />
+                              <TextInputRow id="password-input"
+                              Title="Password"
+                              Placeholder="Enter password"
+                              IsPassword="true"
+                              ValidationMessage="@PasswordWarning"
+                              @bind-Value="UserLogin.Password" />
+                <div class="remebmer-me">
+                    <input type="checkbox" @bind="RememberMe" /> Remember me
 
-<div hidden="@(!IsRegisterMode)">
-    <TextInputRow Title="Email"
-                  Placeholder="Enter email"
-                  ValidationMessage="@EmailWarning"
-                  @bind-Value="UserRegister.Email"></TextInputRow>
-    <TextInputRow Title="Username"
-                  Placeholder="Username"
-                  ValidationMessage="@UserNameWarning"
-                  @bind-Value="UserRegister.UserName"></TextInputRow>
-    <TextInputRow Title="Password"
-                  Placeholder="Enter password"
-                  IsPassword="true"
-                  ValidationMessage="@PasswordWarning"
-                  @bind-Value="UserRegister.Password"></TextInputRow>
-    <TextInputRow Title="First name"
-                  Placeholder="Enter first name"
-                  ValidationMessage="@FirstNameWarning"
-                  @bind-Value="UserRegister.FirstName"></TextInputRow>
-    <TextInputRow Title="Last name"
-                  Placeholder="Enter last name"
-                  ValidationMessage="@LastNameWarning"
-                  @bind-Value="UserRegister.LastName"></TextInputRow>
-    <button @onclick="Register">Register</button>
-    <button @onclick="ToggleRegisterMode">Already have an account</button>
+                </div>
+                <div>@InvalidLoginDataWarning</div>
+
+                <Button Id="login-button"
+                        Text="Login"
+                        OnClick="Login"></Button>
+                        <a @onclick="ToggleRegisterMode">Don't have an account?</a>
+        }
+        else
+        {
+                <div class="title">Registration</div>
+                <TextInputRow Title="Email"
+                              Placeholder="Enter email"
+                              ValidationMessage="@EmailWarning"
+                              @bind-Value="UserRegister.Email" />
+                <TextInputRow Title="Username"
+                              Placeholder="Username"
+                              ValidationMessage="@UserNameWarning"
+                              @bind-Value="UserRegister.UserName" />
+                <TextInputRow Title="Password"
+                              Placeholder="Enter password"
+                              IsPassword="true"
+                              ValidationMessage="@PasswordWarning"
+                              @bind-Value="UserRegister.Password" />
+                <TextInputRow Title="First name"
+                              Placeholder="Enter first name"
+                              ValidationMessage="@FirstNameWarning"
+                              @bind-Value="UserRegister.FirstName" />
+                <TextInputRow Title="Last name"
+                              Placeholder="Enter last name"
+                              ValidationMessage="@LastNameWarning"
+                              @bind-Value="UserRegister.LastName" />
+                <Button Id="register-button"
+                        Text="Register"
+                        OnClick="Register"></Button>
+                <a @onclick="ToggleRegisterMode">Already have an account</a>
+        }
+    </div>
 </div>
 
 @code {
@@ -50,8 +65,8 @@
     [Inject] private AppUsersClient AppUsersClient { get; set; } = default!;
     [Inject] private ToastService ToastService { get; set; } = default!;
 
-    private AppUserLoginDTO UserLogin { get; set; } = new ();
-    private AppUserRegisterDTO UserRegister { get; set; } = new ();
+    private AppUserLoginDTO UserLogin { get; set; } = new();
+    private AppUserRegisterDTO UserRegister { get; set; } = new();
 
     private bool RememberMe { get; set; } = false;
     private bool IsRegisterMode { get; set; } = false;

@@ -48,7 +48,7 @@ namespace BugTracker.Shared.Mappers
                 Author = bug.Author!.ToSummaryDTO(),
                 LastEditor = bug.LastEditor!.ToSummaryDTO(),
                 Assignee = bug.Assignee?.ToSummaryDTO(),
-                CreationDate = bug.CreationDate,
+                CreationDate = bug.CreationDateTime,
                 LastEditDateTime = bug.LastEditDateTime,
                 LoggedTime = bug.LoggedTime
             };

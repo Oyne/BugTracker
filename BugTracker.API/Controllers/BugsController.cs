@@ -108,17 +108,26 @@ namespace BugTracker.API.Controllers
                     };
                 }
 
-                var creationTime = DateTime.UtcNow;
+                var creationDateTime = DateTime.UtcNow;
                 var newBug = bugCreateDTO.ToEntity();
-                newBug.CreationDate = creationTime;
-                newBug.LastEditDateTime = creationTime;
+                newBug.CreationDateTime = creationDateTime;
+                newBug.LastEditDateTime = creationDateTime;
                 newBug.LoggedTime = TimeSpan.Zero;
 
                 _context.Bugs.Add(newBug);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                var newBugDTO = newBug.ToDTO();
+                var savedBug = await _context.Bugs
+                    .Include(b => b.Author)
+                    .Include(b => b.Assignee)
+                    .Include(b => b.LastEditor)
+                    .Include(b => b.Category)
+                    .Include(b => b.Status)
+                    .Include(b => b.Priority)
+                    .FirstOrDefaultAsync(b => b.Id == newBug.Id);
+
+                var newBugDTO = savedBug!.ToDTO();
 
                 return new ApiResponse<BugDTO>
                 {

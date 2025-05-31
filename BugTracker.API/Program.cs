@@ -1,6 +1,5 @@
 using BugTracker.API.Data;
 using BugTracker.API.Services;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.API
@@ -11,21 +10,15 @@ namespace BugTracker.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.WebHost.UseUrls("http://*:80");
 
-            // Verify connection to database
-            try
-            {
-                using var connection = new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"));
-                connection.Open();
-                Console.WriteLine("Database connected successfully!");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Database connection failed: {ex.Message}");
-                throw; // Optional: rethrow to stop startup if DB is critical
-            }
+            var conn = builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? throw new InvalidOperationException("Missing DefaultConnection");
+
+            var uiOrigin = builder.Configuration["UIOrigin"] ?? "https://localhost:7268";
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(conn));
 
             builder.Services.AddScoped<PasswordService>();
 
@@ -33,13 +26,12 @@ namespace BugTracker.API
             {
                 options.AddPolicy("AllowBlazorWasm", policy =>
                 {
-                    policy.WithOrigins("https://localhost:7268") // <- Your Blazor WebAssembly origin
+                    policy.WithOrigins(uiOrigin)
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
             });
 
-            // Add services to the container.
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
                 {
@@ -47,32 +39,53 @@ namespace BugTracker.API
                     options.JsonSerializerOptions.WriteIndented = true;
                 });
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var passwordService = scope.ServiceProvider.GetRequiredService<PasswordService>();
+                const int maxRetries = 10;
+                var retryDelay = TimeSpan.FromSeconds(5);
+                var initialized = false;
+
+                Thread.Sleep(TimeSpan.FromSeconds(5));
+                for (int attempt = 1; attempt <= maxRetries && !initialized; attempt++)
+                {
+                    try
+                    {
+                        DbInitializer.Initialize(db, passwordService);
+                        initialized = true;
+                        Console.WriteLine("Database initialized successfully.");
+                    }
+                    catch (Exception ex) // catch ALL exceptions
+                    {
+                        Console.WriteLine($"[Attempt {attempt}] DB init failed: {ex.Message}");
+                        if (attempt == maxRetries)
+                        {
+                            Console.WriteLine("Max retries reached. Failing startup.");
+                            throw;
+                        }
+                        Thread.Sleep(retryDelay);
+                    }
+                }
+            }
+
+            if (app.Environment.IsEnvironment("Development"))
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            using (var scope = app.Services.CreateScope())
+            if (!app.Environment.IsEnvironment("Docker"))
             {
-                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var passwordService = scope.ServiceProvider.GetRequiredService<PasswordService>();
-                DbInitializer.Initialize(db, passwordService);
+                app.UseHttpsRedirection();
             }
-
-            app.UseHttpsRedirection();
-
             app.UseCors("AllowBlazorWasm");
-
             app.UseAuthorization();
-
             app.MapControllers();
 
             app.Run();
