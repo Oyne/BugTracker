@@ -5,6 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<DartSassBuilderDebug>true</DartSassBuilderDebug>
+		<RunDartSassBuilder>true</RunDartSassBuilder>
 		<CssScopeGenerateMode>ScopedCssBundler</CssScopeGenerateMode>
 		<StaticWebAssetBasePath>wwwroot</StaticWebAssetBasePath>
 		<DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
@@ -25,6 +26,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Content Include="**/*.razor.scss" />
 		<Content Update="**/*.razor.css" />
 	</ItemGroup>
 </Project>

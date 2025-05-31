@@ -4,18 +4,19 @@ WORKDIR /src
 
 # Install Node.js (LTS) and Dart Sass (globally)
 RUN apt-get update && \
-    apt-get install -y curl gnupg && \
+    apt-get install -y curl gnupg build-essential git && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g sass && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy only the UI project file & restore (for layer caching)
+# Copy only the UI project file and restore dependencies
 COPY ["BugTracker.UI/BugTracker.UI.csproj", "BugTracker.UI/"]
 RUN dotnet restore "BugTracker.UI/BugTracker.UI.csproj"
 
-# Copy the rest of the source code
+
+# Copy the rest of the source
 COPY . .
 
 # Copy Docker-specific appsettings
