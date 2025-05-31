@@ -13,7 +13,7 @@ This project includes a Blazor WebAssembly UI, an ASP.NET Core API, and a SQL Se
 
     git clone https://github.com/Oyne/BugTracker
     
-    cd path to cloned repository
+    cd BugTracker
 
 3. Build and start the containers using Docker Compose:
 
