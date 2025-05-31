@@ -10,7 +10,7 @@
 		<StaticWebAssetBasePath>wwwroot</StaticWebAssetBasePath>
 		<DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<PackageReference Include="DartSassBuilder" Version="1.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.15" />
@@ -27,6 +27,10 @@
 
 	<ItemGroup>
 		<Content Include="**/*.razor.scss" />
-		<Content Update="**/*.razor.css" />
+		<Content Update="**/*.razor.css">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
 	</ItemGroup>
+
 </Project>
