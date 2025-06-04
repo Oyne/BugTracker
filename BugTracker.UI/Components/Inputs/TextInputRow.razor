@@ -1,14 +1,15 @@
-﻿<div class="component">
+﻿<div class="input-row">
     @if (!string.IsNullOrWhiteSpace(Title))
     {
         <div class="title">@Title</div>
     }
-    <div id="@Id" class="input-container">
-        <input type="@InputType"
+    <div class="input-container">
+        <input id="@Id" type="@InputType"
                placeholder="@Placeholder"
                value="@Value"
                class="input"
-               @oninput="OnValueChanged" />
+               @oninput="OnValueChanged"
+               disabled="@Disabled" />
         @if (IsPassword)
         {
             <div class="show-password-icon" @onclick="TogglePasswordVisibility">
@@ -27,7 +28,8 @@
 
 @code
 {
-    [Parameter] public string? Id { get; set; }
+    [Parameter]
+    public string? Id { get; set; }
     [Parameter]
     public string? Title { get; set; }
     [Parameter]
@@ -40,6 +42,8 @@
     public string? Value { get; set; }
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
+    [Parameter]
+    public bool Disabled { get; set; } = false;
 
     private string InputType = "text";
 

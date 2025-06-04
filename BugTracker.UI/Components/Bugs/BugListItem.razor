@@ -1,9 +1,28 @@
-﻿<div @onclick="() => NavigationService.NavigateToBugPage(Bug.Id)">
-    <div>
-        @Bug.Id
+﻿<div id="bug-@Bug.Id" class="bug-list-item" @onclick="() => NavigationService.NavigateToBugPage(Bug.Id)">
+    <div class="item-header">
+        <div class="id">Id: @Bug.Id</div>
+        <div class="title">Title: @Bug.Title</div>
     </div>
-    <div>
-        @Bug.Title
+    <div class="item-footer">
+        <div class="name-pill">
+            Priority:
+            <InfoPill Text="@(Bug.Priority?.Name ?? "Unset")" Color="@(Bug.Priority?.Color)"></InfoPill>
+        </div>
+
+        <div class="name-pill">
+            Status:
+            <InfoPill Text="@(Bug.Status?.Name ?? "Unset")" Color="@(Bug.Status?.Color)"></InfoPill>
+        </div>
+
+        <div class="name-pill">
+            Category:
+            <InfoPill Text="@(Bug.Category?.Name ?? "Unset")" Color="@(Bug.Category?.Color)"></InfoPill>
+        </div>
+
+        <div class="name-pill">
+            Assignee:
+            <InfoPill Text="@(Bug.Assignee?.FullName ?? "Unset")" Color="@(Bug.Assignee?.Role?.Color)"></InfoPill>
+        </div>
     </div>
 </div>
 

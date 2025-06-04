@@ -1,41 +1,37 @@
 ﻿@page "/"
+<PageTitle>Main page</PageTitle>
 
-<PageTitle>Index</PageTitle>
-<button class="btn btn-primary" @onclick="() => NavigationService.NavigateToCreateBugPage()">Create Bug</button>
-
-@if (IsLoading)
+@if (!LoaderService.IsLoading)
 {
-    <div>Loading...</div>
-}
-else
-{
-    <BugList Bugs="Bugs"></BugList>
+    <div class="bugs-page">
+        <div class="title">
+            BUGS
+        </div>
+        <BugList Bugs="Bugs"></BugList>
+    </div>
 }
 
 @code {
     [Inject] private NavigationService NavigationService { get; set; } = default!;
     [Inject] private UserState UserState { get; set; } = default!;
+    [Inject] private LoaderService LoaderService { get; set; } = default!;
     [Inject] private BugsClient BugsClient { get; set; } = default!;
     [Inject] private ToastService ToastService { get; set; } = default!;
 
-    private bool IsLoading = true;
     private List<BugDTO> Bugs { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        if (!UserState.IsAuthenticated)
-        {
-            NavigationService.NavigateToLoginPage();
-            return;
-        }
-
+        await UserState.EnsureAuthenticatedAsync(NavigationService);
+        LoaderService.Show();
+        await Task.Delay(3500);
         await LoadDataAsync();
-        IsLoading = false;
     }
 
     private async Task LoadDataAsync()
     {
         var response = await BugsClient.GetAllBugsAsync();
         Bugs = response.Data;
+        LoaderService.Hide();
     }
 }

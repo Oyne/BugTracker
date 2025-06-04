@@ -10,7 +10,10 @@ namespace BugTracker.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.WebHost.UseUrls("http://*:80");
+            if (builder.Environment.IsEnvironment("Docker"))
+            {
+                builder.WebHost.UseUrls("http://*:80");
+            }
 
             var conn = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Missing DefaultConnection");

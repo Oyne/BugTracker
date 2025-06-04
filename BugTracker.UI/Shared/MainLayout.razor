@@ -1,16 +1,37 @@
 ﻿@inherits LayoutComponentBase
 
-@if (UserState.IsAuthenticated)
-{
-    <header>
-        <button @onclick="Logout">Logout</button>
-    </header>
-}
-<ToastHost />
-<main>
+<div class="wrapper">
+    @if (UserState.IsAuthenticated)
+    {
+        <header>
+            @if (NavigationService.GetCurrentPath() != "/")
+            {
+                <div class="button-wrapper">
+                    <Button Id="home-button" Text="Home" OnClick="() => NavigationService.NavigateToHomePage()" />
+                </div>
+
+            }
+            @if (NavigationService.GetCurrentPath() == "/")
+            {
+                <div class="button-wrapper">
+
+                    <Button Id="create-bug-button" Text="Create new bug"
+                            OnClick="() => NavigationService.NavigateToCreateBugPage()" />
+                </div>
+            }
+            <div class="button-wrapper">
+
+                <Button Id="logout-button" Text="Logout" OnClick="Logout" />
+            </div>
+        </header>
+    }
+    <ToastHost />
     <Loader />
-    @Body
-</main>
+    <main>
+        @Body
+    </main>
+</div>
+
 
 @code {
     [Inject] private NavigationService NavigationService { get; set; } = default!;

@@ -1,60 +1,68 @@
 ﻿@page "/login"
 
 <div id="login-page" class="login-page">
-    <div id="@(IsRegisterMode ? "register" : "login")" class="form">
+    <div id="@(IsRegisterMode ? "register" : "login")-form" class="form">
         @if (!IsRegisterMode)
         {
             <div class="title">Login</div>
-            <TextInputRow id="email-username-input"
-                              Title="Email/Username"
-                              Placeholder="Enter email/username"
-                              ValidationMessage="@EmailUserNameWarning"
-                              @bind-Value="UserLogin.EmailUserName" />
-                              <TextInputRow id="password-input"
-                              Title="Password"
-                              Placeholder="Enter password"
-                              IsPassword="true"
-                              ValidationMessage="@PasswordWarning"
-                              @bind-Value="UserLogin.Password" />
-                <div class="remebmer-me">
-                    <input type="checkbox" @bind="RememberMe" /> Remember me
+            <TextInputRow Id="email-username-input"
+                          Title="Email/Username"
+                          Placeholder="Enter email/username"
+                          ValidationMessage="@EmailUserNameWarning"
+                          @bind-Value="UserLogin.EmailUserName" />
 
-                </div>
-                <div>@InvalidLoginDataWarning</div>
+            <TextInputRow Id="password-input"
+                          Title="Password"
+                          Placeholder="Enter password"
+                          IsPassword="true"
+                          ValidationMessage="@PasswordWarning"
+                          @bind-Value="UserLogin.Password" />
 
-                <Button Id="login-button"
-                        Text="Login"
-                        OnClick="Login"></Button>
-                        <a @onclick="ToggleRegisterMode">Don't have an account?</a>
+            <div class="remebmer-me">
+                <input type="checkbox" @bind="RememberMe" /> Remember me
+            </div>
+
+            <div>@InvalidLoginDataWarning</div>
+
+            <Button Id="login-button"
+                    Text="Login"
+                    OnClick="Login" />
+
+            <a id="toggle-register-mode-link" @onclick="ToggleRegisterMode">Don't have an account?</a>
         }
         else
         {
-                <div class="title">Registration</div>
-                <TextInputRow Title="Email"
-                              Placeholder="Enter email"
-                              ValidationMessage="@EmailWarning"
-                              @bind-Value="UserRegister.Email" />
-                <TextInputRow Title="Username"
-                              Placeholder="Username"
-                              ValidationMessage="@UserNameWarning"
-                              @bind-Value="UserRegister.UserName" />
-                <TextInputRow Title="Password"
-                              Placeholder="Enter password"
-                              IsPassword="true"
-                              ValidationMessage="@PasswordWarning"
-                              @bind-Value="UserRegister.Password" />
-                <TextInputRow Title="First name"
-                              Placeholder="Enter first name"
-                              ValidationMessage="@FirstNameWarning"
-                              @bind-Value="UserRegister.FirstName" />
-                <TextInputRow Title="Last name"
-                              Placeholder="Enter last name"
-                              ValidationMessage="@LastNameWarning"
-                              @bind-Value="UserRegister.LastName" />
-                <Button Id="register-button"
-                        Text="Register"
-                        OnClick="Register"></Button>
-                <a @onclick="ToggleRegisterMode">Already have an account</a>
+            <div class="title">Registration</div>
+            <TextInputRow Id="email-input"
+                          Title="Email"
+                          Placeholder="Enter email"
+                          ValidationMessage="@EmailWarning"
+                          @bind-Value="UserRegister.Email" />
+            <TextInputRow Id="username-input"
+                          Title="Username"
+                          Placeholder="Username"
+                          ValidationMessage="@UserNameWarning"
+                          @bind-Value="UserRegister.UserName" />
+            <TextInputRow Id="password-input"
+                          Title="Password"
+                          Placeholder="Enter password"
+                          IsPassword="true"
+                          ValidationMessage="@PasswordWarning"
+                          @bind-Value="UserRegister.Password" />
+            <TextInputRow Id="firstname-input" Title="First name"
+                          Placeholder="Enter first name"
+                          ValidationMessage="@FirstNameWarning"
+                          @bind-Value="UserRegister.FirstName" />
+            <TextInputRow Id="lastname-input"
+                          Title="Last name"
+                          Placeholder="Enter last name"
+                          ValidationMessage="@LastNameWarning"
+                          @bind-Value="UserRegister.LastName" />
+
+            <Button Id="register-button"
+                    Text="Register"
+                    OnClick="Register" />
+            <a id="toggle-register-mode-link" @onclick="ToggleRegisterMode">Already have an account</a>
         }
     </div>
 </div>
@@ -78,6 +86,14 @@
     private string FirstNameWarning { get; set; } = string.Empty;
     private string LastNameWarning { get; set; } = string.Empty;
     private string InvalidLoginDataWarning { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        if (UserState.IsAuthenticated)
+        {
+            NavigationService.NavigateToHomePage();
+        }
+    }
 
     private async Task Login()
     {
@@ -108,9 +124,9 @@
         {
             InvalidLoginDataWarning = GeneralWarnings.InvalidLoginData;
             ToastService.ShowToast(new ToastMessage(
-                title: loginResponse.Error!,
-                message: loginResponse.Message ?? GeneralWarnings.SomethingWentWrong,
-                level: ToastLevel.Error));
+            title: loginResponse.Error!,
+            message: loginResponse.Message ?? GeneralWarnings.SomethingWentWrong,
+            level: ToastLevel.Error));
             return;
         }
 
@@ -172,8 +188,8 @@
         if (!registerResponse.Success)
         {
             ToastService.ShowToast(new ToastMessage(
-                title: registerResponse.Error!,
-                message: registerResponse.Message ?? GeneralWarnings.SomethingWentWrong,
+            title: registerResponse.Error!,
+            message: registerResponse.Message ?? GeneralWarnings.SomethingWentWrong,
             level: ToastLevel.Error));
             return;
         }

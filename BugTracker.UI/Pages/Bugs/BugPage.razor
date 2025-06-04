@@ -1,10 +1,6 @@
 ﻿@page "/bug/{Id:int}"
 
-@if (IsLoading)
-{
-    <div>Loading...</div>
-}
-else
+@if (!LoaderService.IsLoading)
 {
     if (Bug == null)
     {
@@ -12,51 +8,64 @@ else
     }
     else
     {
-        <div hidden="@IsEditMode">
-            <div>Title: @Bug.Title</div>
-            <pre>Descirption: @Bug.Description</pre>
-            <div>Creation date: @Bug.CreationDate.ToLocalTime().ToString("f")</div>
-            <div>Last edit date: @Bug.LastEditDateTime.ToLocalTime().ToString("f")</div>
-            <div>Logged time: @Bug.LoggedTime.ToString()</div>
-            <div>Priority: @Bug.Priority?.Name</div>
-            <div>Status: @Bug.Status?.Name</div>
-            <div>Category: @Bug.Category?.Name</div>
-            <div>Author: @Bug.Author?.FirstName @Bug.Author?.LastName</div>
-            <div>Last editor: @Bug.LastEditor?.FirstName @Bug.LastEditor?.LastName</div>
-            <div>Assignee: @Bug.Assignee?.FirstName @Bug.Assignee?.LastName</div>
-            <button @onclick="ToggleEditMode">Edit</button>
-        </div>
-
-        <div hidden="@(!IsEditMode)">
+        <div class="bug-page">
             <TextInputRow Title="Name"
                           Placeholder="Enter bug title"
                           ValidationMessage="@TitleWarning"
-                          @bind-Value="UpdateBug.Title"></TextInputRow>
+                          @bind-Value="UpdateBug.Title"
+                          Disabled="@(!IsEditMode)" />
 
             <TextInputArea Title="Description"
                            Placeholder="Enter bug description"
                            ValidationMessage="@DescriptionWarning"
-                           @bind-Value="UpdateBug.Description"></TextInputArea>
+                           @bind-Value="UpdateBug.Description"
+                           Disabled="@(!IsEditMode)" />
 
+            <div class="dropdown-wrapper">
+                <Dropdown @ref="PriorityDropdown"
+                          Id="bug-priority-dropdown"
+                          Title="Priority"
+                          Items="@Priorities"
+                          @bind-SelectedId="UpdateBug.PriorityId"
+                          Disabled="@(!IsEditMode)" />
 
-            <ISelectableItemDropdown Title="Priority"
-                                     Items="@Priorities"
-                                     @bind-SelectedId="UpdateBug.PriorityId"></ISelectableItemDropdown>
+                <Dropdown @ref="StatusDropdown"
+                          Id="bug-status-dropdown"
+                          Title="Status"
+                          Items="@Statuses"
+                          @bind-SelectedId="UpdateBug.StatusId"
+                          Disabled="@(!IsEditMode)" />
 
-            <ISelectableItemDropdown Title="Status"
-                                     Items="@Statuses"
-                                     @bind-SelectedId="UpdateBug.StatusId"></ISelectableItemDropdown>
+                <Dropdown @ref="CategoryDropdown"
+                          Id="bug-category-dropdown"
+                          Title="Category"
+                          Items="@Categories"
+                          @bind-SelectedId="UpdateBug.CategoryId"
+                          Disabled="@(!IsEditMode)" />
 
-            <ISelectableItemDropdown Title="Category"
-                                     Items="@Categories"
-                                     @bind-SelectedId="UpdateBug.CategoryId"></ISelectableItemDropdown>
+                <Dropdown @ref="AssigneeDropdown"
+                          Id="bug-assigne-dropdown"
+                          Title="Assignee"
+                          Items="@Users"
+                          @bind-SelectedId="UpdateBug.AssigneeId"
+                          Disabled="@(!IsEditMode)" />
+            </div>
+            @if (!IsEditMode)
+            {
+                <Button Id="edit-button"
+                        Text="Edit"
+                        OnClick="ToggleEditMode" />
+            }
+            else
+            {
+                <Button Id="save-changes-button"
+                        Text="Save changes"
+                        OnClick="SaveChanges" />
 
-            <UserDropdown Title="Assignee"
-                          Users="Users"
-                          @bind-SelectedId="UpdateBug.AssigneeId"></UserDropdown>
-
-            <button @onclick="SaveChanges"> Save </button>
-            <button @onclick="CancelChanges"> Cancel </button>
+                <Button Id="cancel-changes-button"
+                        Text="Cancel changes"
+                        OnClick="CancelChanges" />
+            }
         </div>
     }
 }
@@ -64,6 +73,7 @@ else
 @code {
     [Inject] private NavigationService NavigationService { get; set; } = default!;
     [Inject] private UserState UserState { get; set; } = default!;
+    [Inject] private LoaderService LoaderService { get; set; } = default!;
     [Inject] private BugsClient BugsClient { get; set; } = default!;
     [Inject] private PrioritiesClient PrioritiesClient { get; set; } = default!;
     [Inject] private StatusesClient StatusesClient { get; set; } = default!;
@@ -74,29 +84,42 @@ else
     [Parameter]
     public int Id { get; set; }
 
-    private bool IsLoading = true;
     private bool IsEditMode { get; set; } = false;
     private bool IsEditDataLoaded { get; set; } = false;
 
     private BugDTO Bug = default!;
     private BugUpdateDTO UpdateBug = default!;
 
-    private List<PriorityDTO> Priorities { get; set; } = new();
-    private List<StatusDTO> Statuses { get; set; } = new();
-    private List<CategoryDTO> Categories { get; set; } = new();
-    private List<AppUserDTO> Users { get; set; } = new();
+    private List<DropdownItemDTO> Priorities { get; set; } = new();
+    private List<DropdownItemDTO> Statuses { get; set; } = new();
+    private List<DropdownItemDTO> Categories { get; set; } = new();
+    private List<DropdownItemDTO> Users { get; set; } = new();
+    private Dropdown? PriorityDropdown;
+    private Dropdown? StatusDropdown;
+    private Dropdown? CategoryDropdown;
+    private Dropdown? AssigneeDropdown;
 
     private string TitleWarning { get; set; } = string.Empty;
     private string DescriptionWarning { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
+        await UserState.EnsureAuthenticatedAsync(NavigationService);
         await LoadBugDataAsync();
-        IsLoading = false;
+        await LoadEditDataAsync();
+    }
+
+    private void CloseDropdowns()
+    {
+        PriorityDropdown!.Close();
+        StatusDropdown!.Close();
+        CategoryDropdown!.Close();
+        AssigneeDropdown!.Close();
     }
 
     private async Task LoadBugDataAsync()
     {
+        LoaderService.Show();
         var response = await BugsClient.GetBugByIdAsync(Id);
         Bug = response.Data;
         if (Bug == null)
@@ -106,30 +129,24 @@ else
             return;
         }
         UpdateBug = Bug.CopyToUpdateDTO();
+        LoaderService.Hide();
     }
 
     private async Task LoadEditDataAsync()
     {
-        UpdateBug = Bug.CopyToUpdateDTO();
         var prioritiesResponse = await PrioritiesClient.GetAllPrioritiesAsync();
-        Priorities = prioritiesResponse.Data;
+        Priorities = prioritiesResponse.Data.ToDTOList();
         var statusesResponse = await StatusesClient.GetAllStatusesAsync();
-        Statuses = statusesResponse.Data;
+        Statuses = statusesResponse.Data.ToDTOList();
         var categoriesResponse = await CategoriesClient.GetAllCategoriesAsync();
-        Categories = categoriesResponse.Data;
+        Categories = categoriesResponse.Data.ToDTOList();
         var usersResponse = await AppUsersClient.GetAllUsersAsync();
-        Users = usersResponse.Data;
+        Users = usersResponse.Data.ToDTOList();
     }
 
-    private async Task ToggleEditMode()
+    private void ToggleEditMode()
     {
-        if (!IsEditDataLoaded)
-        {
-            IsLoading = true;
-            await LoadEditDataAsync();
-            IsEditDataLoaded = true;
-            IsLoading = false;
-        }
+        CloseDropdowns();
         IsEditMode = !IsEditMode;
     }
 
@@ -171,6 +188,7 @@ else
         Bug = response.Data;
 
         ToastService.ShowToast(BugToastMessages.BugUpdated);
+        CloseDropdowns();
         IsEditMode = false;
     }
 
@@ -178,5 +196,7 @@ else
     {
         UpdateBug = Bug.CopyToUpdateDTO();
         IsEditMode = !IsEditMode;
+        CloseDropdowns();
+        IsEditMode = false;
     }
 }

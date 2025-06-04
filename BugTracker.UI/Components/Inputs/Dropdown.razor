@@ -1,0 +1,65 @@
+﻿<div class="dropdown-wrapper">
+    <button @onclick="ToggleDropdown"
+            class="dropdown-toggle"
+            disabled="@Disabled">
+        @DisplayText
+    </button>
+
+    @if (IsDropdownOpen && Items?.Any() == true)
+    {
+        <div class="dropdown">
+            @foreach (var item in Items)
+            {
+                <DropdownItem Id="@item.Name.ToLowerInvariant()"
+                              Item="item"
+                              IsSelected="item.Id == SelectedId"
+                              OnSelected="() => SelectItem(item.Id)" />
+
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    [Parameter, EditorRequired]
+    public required string Title { get; set; }
+
+    [Parameter, EditorRequired]
+    public required List<DropdownItemDTO> Items { get; set; }
+
+    [Parameter]
+    public int? SelectedId { get; set; }
+
+    [Parameter]
+    public EventCallback<int?> SelectedIdChanged { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    private DropdownItemDTO? SelectedItem => Items.FirstOrDefault(x => x.Id == SelectedId);
+
+    private string DisplayText => SelectedItem?.Name ?? Title;
+
+    private bool IsDropdownOpen { get; set; } = false;
+
+    public void Close() => IsDropdownOpen = false;
+
+    private void ToggleDropdown() => IsDropdownOpen = !IsDropdownOpen;
+
+    private async Task SelectItem(int id)
+    {
+        IsDropdownOpen = false;
+
+        if (id == SelectedId)
+        {
+            await SelectedIdChanged.InvokeAsync(null);
+        }
+        else
+        {
+            await SelectedIdChanged.InvokeAsync(id);
+        }
+    }
+}

@@ -26,7 +26,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="**/*.razor.scss" />
+		<SassFile Include="**/*.razor.scss" />
 		<Content Update="**/*.razor.css">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

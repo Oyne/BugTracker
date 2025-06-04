@@ -30,5 +30,11 @@ namespace BugTracker.UI.Services
         {
             _navigationManager.NavigateTo($"/bug/{bugId}");
         }
+
+        public string GetCurrentPath()
+        {
+            var path = _navigationManager.ToBaseRelativePath(_navigationManager.Uri);
+            return "/" + path.TrimStart('/');
+        }
     }
 }

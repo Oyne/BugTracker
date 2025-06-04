@@ -1,4 +1,4 @@
-﻿.input-row {
+﻿.input-area {
     display: flex;
     flex-direction: column;
     align-self: start;
@@ -11,12 +11,8 @@
 
     .input-container {
         display: flex;
-        flex-direction: row;
         padding: 0.15rem 0.25rem;
-        align-items: center;
-        gap: 0.5rem;
         width: 100%;
-        height: fit-content;
         box-sizing: border-box;
         background-color: var(--secondary-container);
         border: solid 3px var(--secondary-container-border);
@@ -25,24 +21,23 @@
 
         .input {
             all: unset;
+            resize: vertical;
             width: 100%;
+            min-height: 8rem;
             background-color: var(--secondary-container);
             color: var(--on-secondary-container);
-            font-size: 1rem;
-            border-radius: 10px;
             font-size: 1.2rem;
+            line-height: 1.4rem;
+            border-radius: 10px;
+            padding: 0.2rem 0;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            word-break: break-word;
 
             &:focus {
                 outline: none;
             }
-        }
-
-        .show-password-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 20px;
-            height: 20px;
         }
     }
 
