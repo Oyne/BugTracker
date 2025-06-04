@@ -1,13 +1,15 @@
 ﻿@if (Bugs != null)
 {
-    @foreach (var bug in Bugs)
-    {
-        <BugListItem Bug="bug"></BugListItem>
-    }
+    <div class="bug-list">
+        @foreach (var bug in Bugs)
+        {
+            <BugListItem Bug="bug"></BugListItem>
+        }
+    </div>
 }
 else
 {
-    <div>No bugs found</div>
+    <div class="no-bugs-message">No bugs found</div>
 }
 
 @code {

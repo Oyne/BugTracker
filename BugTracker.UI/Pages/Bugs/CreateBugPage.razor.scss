@@ -1,0 +1,14 @@
+﻿.create-bug-page {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    box-sizing: border-box;
+
+    .dropdown-wrapper {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between
+    }
+}

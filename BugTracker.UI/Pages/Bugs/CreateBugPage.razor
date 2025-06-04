@@ -1,43 +1,54 @@
 ﻿@page "/create-bug"
+<PageTitle>Create bug page</PageTitle>
 
-@if (IsLoading)
+@if (!LoaderService.IsLoading)
 {
-    <div>Loading...</div>
-}
-else
-{
-    <TextInputRow Title="Title"
-                  Placeholder="Enter bug title"
-                  ValidationMessage="@TitleWarning"
-                  @bind-Value="CreateBug.Title"></TextInputRow>
+    <div class="create-bug-page">
+        <TextInputRow Id="bug-title-input"
+                      Title="Title"
+                      Placeholder="Enter bug title"
+                      ValidationMessage="@TitleWarning"
+                      @bind-Value="CreateBug.Title" />
 
-    <TextInputArea Title="Description"
-                   Placeholder="Enter bug description"
-                   ValidationMessage="@DescriptionWarning"
-                   @bind-Value="CreateBug.Description"></TextInputArea>
+        <TextInputArea Id="bug-description-input"
+                       Title="Description"
+                       Placeholder="Enter bug description"
+                       ValidationMessage="@DescriptionWarning"
+                       @bind-Value="CreateBug.Description" />
 
-    <ISelectableItemDropdown Title="Priority"
-                             Items="@Priorities"
-                             @bind-SelectedId="CreateBug.PriorityId"></ISelectableItemDropdown>
+        <div class="dropdown-wrapper">
+            <Dropdown Id="bug-priority-dropdown"
+                      Title="Priority"
+                      Items="@Priorities"
+                      @bind-SelectedId="CreateBug.PriorityId" />
 
-    <ISelectableItemDropdown Title="Status"
-                             Items="@Statuses"
-                             @bind-SelectedId="CreateBug.StatusId"></ISelectableItemDropdown>
+            <Dropdown Id="bug-status-dropdown"
+                      Title="Status"
+                      Items="@Statuses"
+                      @bind-SelectedId="CreateBug.StatusId" />
 
-    <ISelectableItemDropdown Title="Category"
-                             Items="@Categories"
-                             @bind-SelectedId="CreateBug.CategoryId"></ISelectableItemDropdown>
+            <Dropdown Id="bug-category-dropdown"
+                      Title="Category"
+                      Items="@Categories"
+                      @bind-SelectedId="CreateBug.CategoryId" />
 
-    <UserDropdown Title="Assignee"
-                  Users="Users"
-                  @bind-SelectedId="CreateBug.AssigneeId"></UserDropdown>
+            <Dropdown Id="bug-assigne-dropdown"
+                      Title="Assignee"
+                      Items="@Users"
+                      @bind-SelectedId="CreateBug.AssigneeId" />
+        </div>
 
-    <button @onclick="Create">Create bug</button>
+        <Button Id="create-bug-button"
+                Text="Create bug"
+                OnClick="Create" />
+    </div>
+
 }
 
 @code {
     [Inject] private NavigationService NavigationService { get; set; } = default!;
     [Inject] private UserState UserState { get; set; } = default!;
+    [Inject] private LoaderService LoaderService { get; set; } = default!;
     [Inject] private BugsClient BugsClient { get; set; } = default!;
     [Inject] private PrioritiesClient PrioritiesClient { get; set; } = default!;
     [Inject] private StatusesClient StatusesClient { get; set; } = default!;
@@ -45,12 +56,10 @@ else
     [Inject] private AppUsersClient AppUsersClient { get; set; } = default!;
     [Inject] private ToastService ToastService { get; set; } = default!;
 
-    private bool IsLoading = true;
-
-    private List<PriorityDTO> Priorities { get; set; } = new();
-    private List<StatusDTO> Statuses { get; set; } = new();
-    private List<CategoryDTO> Categories { get; set; } = new();
-    private List<AppUserDTO> Users { get; set; } = new();
+    private List<DropdownItemDTO> Priorities { get; set; } = new();
+    private List<DropdownItemDTO> Statuses { get; set; } = new();
+    private List<DropdownItemDTO> Categories { get; set; } = new();
+    private List<DropdownItemDTO> Users { get; set; } = new();
 
     private BugCreateDTO CreateBug { get; } = new();
     private string TitleWarning { get; set; } = string.Empty;
@@ -58,20 +67,22 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await UserState.EnsureAuthenticatedAsync(NavigationService);
         await LoadDataAsync();
-        IsLoading = false;
     }
 
     private async Task LoadDataAsync()
     {
+        LoaderService.Show();
         var prioritiesResponse = await PrioritiesClient.GetAllPrioritiesAsync();
-        Priorities = prioritiesResponse.Data;
+        Priorities = prioritiesResponse.Data.ToDTOList();
         var statusesResponse = await StatusesClient.GetAllStatusesAsync();
-        Statuses = statusesResponse.Data;
+        Statuses = statusesResponse.Data.ToDTOList();
         var categoriesResponse = await CategoriesClient.GetAllCategoriesAsync();
-        Categories = categoriesResponse.Data;
+        Categories = categoriesResponse.Data.ToDTOList();
         var usersResponse = await AppUsersClient.GetAllUsersAsync();
-        Users = usersResponse.Data;
+        Users = usersResponse.Data.ToDTOList();
+        LoaderService.Hide();
     }
 
     private async Task Create()
@@ -112,6 +123,6 @@ else
         }
 
         ToastService.ShowToast(BugToastMessages.BugCreated());
-        NavigationService.NavigateToHomePage();
+        NavigationService.NavigateToBugPage(response.Data.Id);
     }
 }

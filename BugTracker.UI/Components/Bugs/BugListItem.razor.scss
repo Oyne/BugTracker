@@ -1,0 +1,46 @@
+﻿.bug-list-item {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border: 3px solid var(--primary-container-border);
+    background-color: var(--primary-container);
+    color: var(--on-primary-container);
+    font-size: 1.5rem;
+
+    &:hover {
+        background-color: var(--primary-container-hover);
+    }
+
+    .item-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .id {
+            font-weight: 600;
+            width: 10%;
+        }
+
+        .title {
+            font-weight: 500;
+            width: 95%;
+            overflow-wrap: break-word;
+        }
+    }
+
+    .item-footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        .name-pill {
+            display: flex;
+            flex-direction: row;
+            gap: 0.25rem;
+            font-weight: 500;
+        }
+    }
+}

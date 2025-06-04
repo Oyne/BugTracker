@@ -35,5 +35,15 @@ namespace BugTracker.UI.Services.State
             CurrentUser = null;
             await _storage.RemoveItemAsync(UserKey);
         }
+
+        public async Task EnsureAuthenticatedAsync(NavigationService navigationService)
+        {
+            await LoadUserAsync();
+            if (!IsAuthenticated)
+            {
+                navigationService.NavigateToLoginPage();
+            }
+        }
+
     }
 }

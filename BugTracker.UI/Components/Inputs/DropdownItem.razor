@@ -1,0 +1,20 @@
+﻿<button id="@Id"
+        @onclick="OnSelected"
+        style="background-color: @Item.Color;"
+        class="dropdown-item @(IsSelected ? "selected" : "")">
+    @Item.Name
+</button>
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    [Parameter]
+    public required DropdownItemDTO Item { get; set; }
+
+    [Parameter]
+    public bool IsSelected { get; set; } = false;
+
+    [Parameter]
+    public EventCallback OnSelected { get; set; }
+}

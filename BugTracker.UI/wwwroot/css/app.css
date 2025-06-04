@@ -27,10 +27,10 @@ h1:focus {
     --primary-container-border: #b9afc3;
     --primary-container-hover: #d6cfe0;
     /*Secondary colors*/
-    --secondary-container: #dad4e0;
-    --on-secondary-container: #423a4f;
-    --on-secondary-container-hover: #c9c2d3;
-    --on-secondary-container-border: #b1a7be;
+    --secondary-container: #cfc8d8;
+    --on-secondary-container: #3b3247;
+    --secondary-container-border: #a59bb1;
+    --secondary-container-hover: #c5bdce;
     /*Toast colors*/
     --toast-info: #4a90e2;
     --toast-success: #4caf50;
@@ -80,3 +80,15 @@ h1:focus {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+html, body, #app {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--primary);
+}

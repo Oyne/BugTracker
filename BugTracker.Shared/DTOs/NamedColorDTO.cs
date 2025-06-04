@@ -1,9 +1,8 @@
-﻿using BugTracker.Shared.Interfaces;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BugTracker.Shared.DTOs
 {
-    public class NamedColorDTO : ISelectableItem
+    public class NamedColorDTO
     {
         [Required]
         public int Id { get; set; }
