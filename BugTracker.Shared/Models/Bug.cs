@@ -46,7 +46,5 @@ namespace BugTracker.Shared.Models
 
         [Required]
         public DateTime LastEditDateTime { get; set; } = DateTime.UtcNow;
-
-        public TimeSpan LoggedTime { get; set; } = TimeSpan.Zero;
     }
 }

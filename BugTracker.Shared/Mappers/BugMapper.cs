@@ -31,7 +31,6 @@ namespace BugTracker.Shared.Mappers
                 CategoryId = bugUpdateDTO.CategoryId,
                 LastEditorId = bugUpdateDTO.LastEditorId,
                 AssigneeId = bugUpdateDTO.AssigneeId,
-                LoggedTime = bugUpdateDTO.LoggedTime
             };
         }
 
@@ -50,7 +49,6 @@ namespace BugTracker.Shared.Mappers
                 Assignee = bug.Assignee?.ToSummaryDTO(),
                 CreationDate = bug.CreationDateTime,
                 LastEditDateTime = bug.LastEditDateTime,
-                LoggedTime = bug.LoggedTime
             };
         }
 
@@ -66,7 +64,6 @@ namespace BugTracker.Shared.Mappers
                 CategoryId = bug.Category?.Id,
                 LastEditorId = bug.LastEditor.Id,
                 AssigneeId = bug.Assignee?.Id,
-                LoggedTime = bug.LoggedTime
             };
         }
     }

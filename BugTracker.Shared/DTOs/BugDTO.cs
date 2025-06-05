@@ -22,7 +22,5 @@ namespace BugTracker.Shared.DTOs
         public DateTime CreationDate { get; set; }
         [Required]
         public DateTime LastEditDateTime { get; set; }
-        [Required]
-        public TimeSpan LoggedTime { get; set; }
     }
 }

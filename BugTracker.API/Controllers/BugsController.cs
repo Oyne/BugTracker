@@ -112,7 +112,6 @@ namespace BugTracker.API.Controllers
                 var newBug = bugCreateDTO.ToEntity();
                 newBug.CreationDateTime = creationDateTime;
                 newBug.LastEditDateTime = creationDateTime;
-                newBug.LoggedTime = TimeSpan.Zero;
 
                 _context.Bugs.Add(newBug);
                 await _context.SaveChangesAsync();
@@ -209,7 +208,6 @@ namespace BugTracker.API.Controllers
                 bugToUpdate.LastEditorId = bugUpdateDTO.LastEditorId;
                 bugToUpdate.AssigneeId = bugUpdateDTO.AssigneeId;
                 bugToUpdate.LastEditDateTime = DateTime.UtcNow;
-                bugToUpdate.LoggedTime = bugUpdateDTO.LoggedTime;
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();

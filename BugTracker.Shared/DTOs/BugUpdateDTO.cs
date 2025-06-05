@@ -15,6 +15,5 @@ namespace BugTracker.Shared.DTOs
         public int? CategoryId { get; set; }
         public int LastEditorId { get; set; }
         public int? AssigneeId { get; set; }
-        public TimeSpan LoggedTime { get; set; } = TimeSpan.Zero;
     }
 }
