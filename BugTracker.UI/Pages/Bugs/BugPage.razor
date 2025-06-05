@@ -9,7 +9,7 @@
     else
     {
         <div class="bug-page">
-            <TextInputRow Title="Name"
+            <TextInputRow Title="Title"
                           Placeholder="Enter bug title"
                           ValidationMessage="@TitleWarning"
                           @bind-Value="UpdateBug.Title"
@@ -50,6 +50,11 @@
                           @bind-SelectedId="UpdateBug.AssigneeId"
                           Disabled="@(!IsEditMode)" />
             </div>
+            <InfoPill Text="@CreationDateTime" />
+            <InfoPill Text="@LastEditDateTime" />
+            <InfoPill Text="@Author" />
+            <InfoPill Text="@LastEditor" />
+
             @if (!IsEditMode)
             {
                 <Button Id="edit-button"
@@ -101,6 +106,10 @@
 
     private string TitleWarning { get; set; } = string.Empty;
     private string DescriptionWarning { get; set; } = string.Empty;
+    private string CreationDateTime => "Creation date: " + Bug.CreationDate.ToLocalTime().ToString("F");
+    private string LastEditDateTime => "Last edit date: " + Bug.LastEditDateTime.ToLocalTime().ToString("F");
+    private string Author => "Author: " + Bug.Author.FullName;
+    private string LastEditor => "Last editor: " + Bug.LastEditor.FullName;
 
     protected override async Task OnInitializedAsync()
     {
