@@ -1,4 +1,5 @@
 ﻿@page "/login"
+<PageTitle>@(IsRegisterMode? "Register" : "Login")</PageTitle>
 
 <div id="login-page" class="login-page">
     <div id="@(IsRegisterMode ? "register" : "login")-form" class="form">
