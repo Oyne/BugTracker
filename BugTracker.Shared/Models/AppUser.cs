@@ -14,7 +14,7 @@ namespace BugTracker.Shared.Models
         [Required]
         public string Email { get; set; } = string.Empty;
 
-        [Column("Username")]
+        [Column("UserName")]
         [Required]
         public string UserName { get; set; } = string.Empty;
 
