@@ -66,7 +66,7 @@ Run container bugtracker-sqlserver
 
 Open SSMS and enter the following on the Login tab:
 
-- Server name: localhost,1433
+- Server name: localhost,9999
   
 - Authentication: SQL Server Authentication
 
