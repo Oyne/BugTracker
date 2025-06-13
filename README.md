@@ -60,6 +60,29 @@ docker compose up --build
 If no just rebuild:
 
 docker compose up --build
+## Opening database via SSMS
+
+Run container bugtracker-sqlserver
+
+Open SSMS and enter the following on the Login tab:
+
+- Server name: localhost,9999
+  
+- Authentication: SQL Server Authentication
+
+- Login: sa
+
+- Password: YourStrong!Passw0rd
+
+- Encryption: Mandatory
+
+- Check Trust server certificate
+
+Click on Connect
+
+
+
+ 
 
 
 
