@@ -107,7 +107,7 @@
 
     private string TitleWarning { get; set; } = string.Empty;
     private string DescriptionWarning { get; set; } = string.Empty;
-    private string CreationDateTime => "Creation date: " + Bug.CreationDate.ToLocalTime().ToString("F");
+    private string CreationDateTime => "Creation date: " + Bug.CreationDateTime.ToLocalTime().ToString("F");
     private string LastEditDateTime => "Last edit date: " + Bug.LastEditDateTime.ToLocalTime().ToString("F");
     private string Author => "Author: " + Bug.Author.FullName;
     private string LastEditor => "Last editor: " + Bug.LastEditor.FullName;
