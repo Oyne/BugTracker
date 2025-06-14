@@ -1,5 +1,5 @@
-﻿using BugTracker.Shared.DTOs;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
+using BugTracker.Shared.DTOs;
 
 namespace BugTracker.UI.Services
 {
@@ -48,7 +48,7 @@ namespace BugTracker.UI.Services
 
         public async Task<ApiResponse<AppUserDTO>> GetUserByUserNameAsync(string userName)
         {
-            var response = await _httpClient.GetFromJsonAsync<ApiResponse<AppUserDTO>>($"api/{_endpoint}/by-username/{userName}");
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<AppUserDTO>>($"api/{_endpoint}/by-userName/{userName}");
             return response ?? new ApiResponse<AppUserDTO>
             {
                 Success = false,
@@ -114,7 +114,7 @@ namespace BugTracker.UI.Services
             };
         }
 
-        public async Task<ApiResponse<AppUserDTO>> UpdateAppUserAsync(AppUserDTO userUpdateDTO)
+        public async Task<ApiResponse<AppUserDTO>> UpdateUserAsync(AppUserDTO userUpdateDTO)
         {
             var response = await _httpClient.PutAsJsonAsync($"api/{_endpoint}", userUpdateDTO);
             if (response.Content is null)
@@ -137,7 +137,7 @@ namespace BugTracker.UI.Services
             };
         }
 
-        public async Task<bool> DeleteAppUserByIdAsync(int appUserId)
+        public async Task<bool> DeleteUserByIdAsync(int appUserId)
         {
             var response = await _httpClient.DeleteAsync($"api/{_endpoint}/{appUserId}");
             return response.IsSuccessStatusCode;

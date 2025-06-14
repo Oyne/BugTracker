@@ -111,11 +111,11 @@ namespace BugTracker.API.Controllers
             };
         }
 
-        // Get api/appusers/by-username/{username}
-        [HttpGet("by-username/{username}")]
-        public async Task<ApiResponse<AppUserDTO>> GetUserByUsername(string username)
+        // Get api/appusers/by-userName/{userName}
+        [HttpGet("by-userName/{userName}")]
+        public async Task<ApiResponse<AppUserDTO>> GetUserByUserName(string userName)
         {
-            if (string.IsNullOrWhiteSpace(username))
+            if (string.IsNullOrWhiteSpace(userName))
             {
                 return new ApiResponse<AppUserDTO>
                 {
@@ -126,7 +126,7 @@ namespace BugTracker.API.Controllers
                 };
             }
 
-            var normalizedUserName = username.Trim();
+            var normalizedUserName = userName.Trim();
 
             var user = await _context.AppUsers
                 .Include(u => u.Role)
@@ -156,7 +156,7 @@ namespace BugTracker.API.Controllers
 
         // Get api/appusers/count
         [HttpGet("count")]
-        public async Task<ApiResponse<int>> GetAppUserCount()
+        public async Task<ApiResponse<int>> GetUserCount()
         {
             return new ApiResponse<int>
             {
