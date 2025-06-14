@@ -19,7 +19,7 @@ namespace BugTracker.Shared.DTOs
         public AppUserSummaryDTO LastEditor { get; set; } = new();
         public AppUserSummaryDTO? Assignee { get; set; }
         [Required]
-        public DateTime CreationDate { get; set; }
+        public DateTime CreationDateTime { get; set; }
         [Required]
         public DateTime LastEditDateTime { get; set; }
     }
